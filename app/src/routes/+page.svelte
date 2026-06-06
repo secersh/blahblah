@@ -11,6 +11,8 @@
   const title = 'ShipLog — Automated GitHub release notes';
   const description =
     'ShipLog turns the commits between two GitHub tags into a clean, editable changelog. Connect a repository, watch for new tags, and ship release notes your users actually read.';
+  const keywords =
+    'release notes generator, GitHub release notes, automated changelog, changelog generator, GitHub tags, release automation, draft release notes, GitHub App';
 
   const origin = $derived($page.url.origin);
   const canonical = $derived(origin + '/');
@@ -47,6 +49,7 @@
 <svelte:head>
   <title>{title}</title>
   <meta name="description" content={description} />
+  <meta name="keywords" content={keywords} />
   <link rel="canonical" href={canonical} />
   <meta name="robots" content="index, follow" />
 

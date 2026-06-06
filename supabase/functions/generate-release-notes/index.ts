@@ -1,19 +1,23 @@
 // Supabase Edge Function: generate-release-notes
 //
-// DUMMY worker for now: it validates the request, returns 202 immediately, and
+// DUMMY worker for now: validates the request, returns 202 immediately, and
 // does the slow work in the background (EdgeRuntime.waitUntil) so neither this
 // request nor the user's web request blocks for 30s. After the delay it writes
 // the generated markdown to Storage and flips the release_notes row to 'draft'.
+//
+// All DB/Storage work runs with the *caller's* JWT (the `authenticated` role),
+// which has the table grants + RLS access + storage-folder access it needs.
+// NOTE: the future webhook trigger has no user JWT, so that path will need a
+// service identity (grant the relevant role on release_notes) instead.
 //
 // TODO(real generation): replace the delay + buildDummyMarkdown with
 //   1. fetch the tag range via GitHub (compare / generate-notes) using installationId
 //   2. summarise via the Anthropic API
 //
-// Run locally:  supabase functions serve generate-release-notes
-// Deploy:       supabase functions deploy generate-release-notes
+// Deploy: supabase functions deploy generate-release-notes
 // (verify_jwt defaults to true, so the caller's user JWT is required.)
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 declare const EdgeRuntime: { waitUntil(promise: Promise<unknown>): void };
 
@@ -29,7 +33,6 @@ type GeneratePayload = {
 };
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
-const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
 
 const DUMMY_DELAY_MS = 30_000;
@@ -58,33 +61,29 @@ function buildDummyMarkdown(payload: GeneratePayload): string {
   ].join('\n');
 }
 
-async function runGeneration(payload: GeneratePayload, userId: string) {
-  const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
-
+async function runGeneration(db: SupabaseClient, payload: GeneratePayload) {
   try {
     // Simulate the cost of fetching commits + calling the model.
     await new Promise((resolve) => setTimeout(resolve, DUMMY_DELAY_MS));
 
     const markdown = buildDummyMarkdown(payload);
 
-    const { error: uploadError } = await admin.storage
+    const { error: uploadError } = await db.storage
       .from('release-notes')
       .upload(payload.storagePath, markdown, { contentType: 'text/markdown', upsert: true });
     if (uploadError) throw uploadError;
 
-    const { error: updateError } = await admin
+    const { error: updateError } = await db
       .from('release_notes')
       .update({ status: 'draft', error_message: null })
-      .eq('id', payload.releaseNoteId)
-      .eq('user_id', userId);
+      .eq('id', payload.releaseNoteId);
     if (updateError) throw updateError;
   } catch (err) {
     console.error('Release note generation failed', err);
-    await admin
+    await db
       .from('release_notes')
       .update({ status: 'failed', error_message: String((err as Error)?.message ?? err) })
-      .eq('id', payload.releaseNoteId)
-      .eq('user_id', userId);
+      .eq('id', payload.releaseNoteId);
   }
 }
 
@@ -93,14 +92,15 @@ Deno.serve(async (req) => {
     return json({ error: 'Method not allowed' }, 405);
   }
 
-  // Authenticate the caller (the user JWT forwarded by supabase.functions.invoke).
+  // Run everything as the caller (authenticated role) via their forwarded JWT.
   const authHeader = req.headers.get('Authorization') ?? '';
-  const userClient = createClient(SUPABASE_URL, ANON_KEY, {
+  const db = createClient(SUPABASE_URL, ANON_KEY, {
     global: { headers: { Authorization: authHeader } }
   });
+
   const {
     data: { user }
-  } = await userClient.auth.getUser();
+  } = await db.auth.getUser();
   if (!user) {
     return json({ error: 'Unauthorized' }, 401);
   }
@@ -116,24 +116,25 @@ Deno.serve(async (req) => {
     return json({ error: 'Missing releaseNoteId or storagePath' }, 400);
   }
 
-  // Ensure the note exists, belongs to the caller, and is awaiting generation.
-  const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
-  const { data: note } = await admin
+  // RLS scopes this to the caller's own rows.
+  const { data: note, error: noteError } = await db
     .from('release_notes')
     .select('id, status')
     .eq('id', payload.releaseNoteId)
-    .eq('user_id', user.id)
     .maybeSingle();
 
+  if (noteError) {
+    return json({ error: 'lookup_failed', detail: noteError.message }, 500);
+  }
   if (!note) {
-    return json({ error: 'Release note not found' }, 404);
+    return json({ error: 'note_not_found', releaseNoteId: payload.releaseNoteId }, 404);
   }
   if (note.status !== 'generating') {
-    return json({ error: 'Release note is not awaiting generation' }, 409);
+    return json({ error: 'wrong_status', status: note.status }, 409);
   }
 
   // Do the slow work after responding.
-  EdgeRuntime.waitUntil(runGeneration(payload, user.id));
+  EdgeRuntime.waitUntil(runGeneration(db, payload));
 
   return json({ accepted: true, releaseNoteId: payload.releaseNoteId }, 202);
 });

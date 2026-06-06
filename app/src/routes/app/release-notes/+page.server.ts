@@ -223,7 +223,20 @@ export const actions = {
     });
 
     if (invokeError) {
-      console.error('Failed to start release note generation', invokeError);
+      let detail: unknown = null;
+      const context = (invokeError as { context?: Response }).context;
+      if (context && typeof context.json === 'function') {
+        try {
+          detail = await context.clone().json();
+        } catch {
+          try {
+            detail = await context.text();
+          } catch {
+            detail = null;
+          }
+        }
+      }
+      console.error('Failed to start release note generation', invokeError, 'body=', detail);
       await locals.supabase
         .from('release_notes')
         .update({ status: 'failed', error_message: 'Could not start generation.' })

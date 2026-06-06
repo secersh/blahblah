@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { page } from '$app/stores';
   import Ship from '@lucide/svelte/icons/ship';
   import ScrollText from '@lucide/svelte/icons/scroll-text';
   import { SiGithub } from '@icons-pack/svelte-simple-icons';
+  import { SITE_URL } from '$lib/config';
   import Brand from '$lib/components/Brand.svelte';
 
   let { form } = $props();
@@ -14,23 +14,20 @@
   const keywords =
     'release notes generator, GitHub release notes, automated changelog, changelog generator, GitHub tags, release automation, draft release notes, GitHub App';
 
-  const origin = $derived($page.url.origin);
-  const canonical = $derived(origin + '/');
-  const ogImage = $derived(origin + '/og-image.png');
+  const canonical = SITE_URL + '/';
+  const ogImage = SITE_URL + '/og-image.png';
 
-  const jsonLd = $derived(
-    JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'SoftwareApplication',
-      name: siteName,
-      applicationCategory: 'DeveloperApplication',
-      operatingSystem: 'Web',
-      description,
-      url: canonical,
-      image: ogImage,
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
-    })
-  );
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: siteName,
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Web',
+    description,
+    url: canonical,
+    image: ogImage,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
+  });
 
   const features = [
     {

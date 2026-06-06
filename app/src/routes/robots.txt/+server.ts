@@ -1,15 +1,16 @@
+import { SITE_URL } from '$lib/config';
 import type { RequestHandler } from './$types';
 
 export const prerender = false;
 
-export const GET: RequestHandler = ({ url }) => {
+export const GET: RequestHandler = () => {
   const body = `User-agent: *
 Allow: /
 Disallow: /app/
 Disallow: /auth/
 Disallow: /github/
 
-Sitemap: ${url.origin}/sitemap.xml
+Sitemap: ${SITE_URL}/sitemap.xml
 `;
 
   return new Response(body, {

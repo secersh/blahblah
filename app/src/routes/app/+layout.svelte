@@ -6,9 +6,15 @@
   import CreditCard from '@lucide/svelte/icons/credit-card';
   import Settings from '@lucide/svelte/icons/settings';
   import Menu from '@lucide/svelte/icons/menu';
+  import LogOut from '@lucide/svelte/icons/log-out';
   import Brand from '$lib/components/Brand.svelte';
 
-  let { children } = $props();
+  let { children, data } = $props();
+
+  const meta = $derived((data.user?.user_metadata ?? {}) as Record<string, string | undefined>);
+  const avatarUrl = $derived(meta.avatar_url);
+  const displayName = $derived(meta.user_name || meta.full_name || meta.name || data.user?.email || 'Account');
+  const email = $derived(data.user?.email ?? '');
 
   const navItems = [
     { href: '/app', icon: LayoutDashboard, label: 'Dashboard' },
@@ -68,10 +74,43 @@
           {/each}
         </ul>
 
-        <div class="mt-auto rounded-xl border border-base-300 bg-base-100/60 p-4">
-          <p class="text-xs font-medium text-neutral/55">Free plan</p>
-          <p class="mt-1 text-sm text-neutral/70">1 repository included.</p>
-          <a class="btn btn-primary btn-sm mt-3 w-full" href="/app/billing">Upgrade</a>
+        <div class="mt-auto space-y-3 pt-6">
+          <div class="rounded-xl border border-base-300 bg-base-100/60 p-4">
+            <p class="text-xs font-medium text-neutral/55">Free plan</p>
+            <p class="mt-1 text-sm text-neutral/70">1 repository included.</p>
+            <a class="btn btn-primary btn-sm mt-3 w-full" href="/app/billing">Upgrade</a>
+          </div>
+
+          <div class="flex items-center gap-3 rounded-xl border border-base-300 bg-base-100/60 p-2.5">
+            {#if avatarUrl}
+              <img
+                src={avatarUrl}
+                alt=""
+                referrerpolicy="no-referrer"
+                class="h-9 w-9 shrink-0 rounded-full border border-base-300 object-cover"
+              />
+            {:else}
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary to-secondary text-sm font-semibold text-primary-content">
+                {displayName.slice(0, 1).toUpperCase()}
+              </span>
+            {/if}
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-medium text-neutral">{displayName}</p>
+              {#if email}
+                <p class="truncate text-xs text-neutral/50">{email}</p>
+              {/if}
+            </div>
+            <form method="POST" action="/auth/logout">
+              <button
+                class="btn btn-square btn-ghost btn-sm text-neutral/55 hover:bg-error/10 hover:text-error"
+                type="submit"
+                aria-label="Sign out"
+                title="Sign out"
+              >
+                <LogOut class="h-4 w-4" />
+              </button>
+            </form>
+          </div>
         </div>
       </nav>
     </aside>

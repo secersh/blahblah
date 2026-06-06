@@ -2,8 +2,11 @@
   import ScrollText from '@lucide/svelte/icons/scroll-text';
   import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import FolderGit2 from '@lucide/svelte/icons/folder-git-2';
+  import MarkdownEditor from '$lib/components/MarkdownEditor.svelte';
 
   let { data, form } = $props();
+
+  let content = $state(data.releaseNote.content ?? '');
 </script>
 
 <svelte:head>
@@ -53,11 +56,7 @@
   {/if}
 
   <form class="grid gap-4" method="POST" action="?/saveReleaseNote">
-    <textarea
-      class="textarea textarea-bordered min-h-[28rem] rounded-xl bg-base-100 font-mono text-sm leading-6"
-      name="content"
-      spellcheck="false"
-    >{data.releaseNote.content}</textarea>
+    <MarkdownEditor bind:value={content} name="content" minHeight="28rem" />
     <div class="flex justify-end">
       <button class="btn btn-primary" type="submit">Save changes</button>
     </div>

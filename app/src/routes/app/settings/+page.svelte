@@ -14,7 +14,7 @@
   <title>Settings | ShipLog</title>
 </svelte:head>
 
-<section class="max-w-3xl">
+<section>
   <div class="mb-8">
     <h1 class="text-2xl font-semibold tracking-tight text-neutral">Settings</h1>
     <p class="mt-1 text-sm text-neutral/60">Manage your account and GitHub connection.</p>

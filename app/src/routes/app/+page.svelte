@@ -148,7 +148,7 @@
       <div class="mb-4 flex items-center justify-between gap-3">
         <div>
           <h2 class="font-semibold text-neutral">Recent release notes</h2>
-          <p class="mt-1 text-sm text-neutral/60">Latest drafts and approved notes.</p>
+          <p class="mt-1 text-sm text-neutral/60">Latest drafts, approved, and failed notes.</p>
         </div>
         <a class="btn btn-sm btn-outline" href="/app/release-notes">View all</a>
       </div>

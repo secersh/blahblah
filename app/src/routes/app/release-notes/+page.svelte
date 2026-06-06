@@ -1,5 +1,7 @@
 <script lang="ts">
-  import LogIcon from '$lib/components/icons/LogIcon.svelte';
+  import ScrollText from '@lucide/svelte/icons/scroll-text';
+  import Plus from '@lucide/svelte/icons/plus';
+  import X from '@lucide/svelte/icons/x';
 
   let { data, form } = $props();
 
@@ -73,9 +75,7 @@
       <p class="mt-1 text-sm text-neutral/60">Create and review release note drafts.</p>
     </div>
     <button class="btn btn-primary gap-2" disabled={!hasActiveRepositories} onclick={() => dialog.showModal()}>
-      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-        <path d="M12 5v14M5 12h14" />
-      </svg>
+      <Plus class="h-4 w-4" />
       Generate release notes
     </button>
   </div>
@@ -128,7 +128,7 @@
 
   {#if data.releaseNotes.length === 0}
     <div class="rounded-xl border border-dashed border-base-300 bg-base-100 p-12 text-center">
-      <LogIcon class="mx-auto h-10 w-10 text-neutral/30" />
+      <ScrollText class="mx-auto h-10 w-10 text-neutral/30" />
       <h2 class="mt-4 text-lg font-semibold text-neutral">No release notes yet</h2>
       <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-neutral/60">
         Generate release notes from an active repository and tag range.
@@ -187,9 +187,7 @@
   <div class="modal-box max-w-2xl">
     <form method="dialog">
       <button class="btn btn-circle btn-ghost btn-sm absolute right-4 top-4" aria-label="Close">
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <path d="M6 6l12 12M18 6 6 18" />
-        </svg>
+        <X class="h-4 w-4" />
       </button>
     </form>
 

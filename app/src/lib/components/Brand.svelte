@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ShipIcon from './icons/ShipIcon.svelte';
+  import Ship from '@lucide/svelte/icons/ship';
 
   let {
     size = 'md',
@@ -23,7 +23,7 @@
       size
     ]}"
   >
-    <ShipIcon class={glyph[size]} strokeWidth={1.9} />
+    <Ship class={glyph[size]} strokeWidth={2} />
   </span>
   {#if showWordmark}
     <span class="font-semibold tracking-tight text-neutral {word[size]}">

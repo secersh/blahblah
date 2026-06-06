@@ -1,16 +1,20 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
+  import FolderGit2 from '@lucide/svelte/icons/folder-git-2';
+  import ScrollText from '@lucide/svelte/icons/scroll-text';
+  import CreditCard from '@lucide/svelte/icons/credit-card';
+  import Settings from '@lucide/svelte/icons/settings';
   import Brand from '$lib/components/Brand.svelte';
-  import NavIcon from '$lib/components/icons/NavIcon.svelte';
 
   let { children } = $props();
 
   const navItems = [
-    { href: '/app', icon: 'dashboard', label: 'Dashboard' },
-    { href: '/app/repositories', icon: 'repositories', label: 'Repositories' },
-    { href: '/app/release-notes', icon: 'release-notes', label: 'Release Notes' },
-    { href: '/app/billing', icon: 'billing', label: 'Billing' },
-    { href: '/app/settings', icon: 'settings', label: 'Settings' }
+    { href: '/app', icon: LayoutDashboard, label: 'Dashboard' },
+    { href: '/app/repositories', icon: FolderGit2, label: 'Repositories' },
+    { href: '/app/release-notes', icon: ScrollText, label: 'Release Notes' },
+    { href: '/app/billing', icon: CreditCard, label: 'Billing' },
+    { href: '/app/settings', icon: Settings, label: 'Settings' }
   ];
 
   const isActive = (href: string, pathname: string) =>
@@ -73,7 +77,7 @@
                   ? 'bg-primary/12 text-primary'
                   : 'text-neutral/65 hover:bg-base-100 hover:text-neutral'}"
               >
-                <NavIcon name={item.icon} class="h-5 w-5 shrink-0" />
+                <item.icon class="h-5 w-5 shrink-0" />
                 {item.label}
               </a>
             </li>

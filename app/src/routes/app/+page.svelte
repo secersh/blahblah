@@ -1,7 +1,8 @@
 <script lang="ts">
-  import ShipIcon from '$lib/components/icons/ShipIcon.svelte';
-  import LogIcon from '$lib/components/icons/LogIcon.svelte';
-  import NavIcon from '$lib/components/icons/NavIcon.svelte';
+  import Ship from '@lucide/svelte/icons/ship';
+  import ScrollText from '@lucide/svelte/icons/scroll-text';
+  import FolderGit2 from '@lucide/svelte/icons/folder-git-2';
+  import CreditCard from '@lucide/svelte/icons/credit-card';
 
   let { data, form } = $props();
 
@@ -33,7 +34,7 @@
     <div class="mb-8 rounded-xl border border-base-300 bg-base-100 p-6">
       <div class="mb-5 flex items-start gap-3">
         <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-          <ShipIcon class="h-5 w-5" />
+          <Ship class="h-5 w-5" />
         </span>
         <div>
           <h2 class="text-lg font-semibold text-neutral">Get set up</h2>
@@ -82,7 +83,7 @@
     <article class="rounded-xl border border-base-300 bg-base-100 p-5">
       <div class="flex items-center justify-between">
         <p class="text-sm text-neutral/55">Plan usage</p>
-        <NavIcon name="billing" class="h-4 w-4 text-neutral/40" />
+        <CreditCard class="h-4 w-4 text-neutral/40" />
       </div>
       <p class="mt-3 text-2xl font-semibold text-neutral">
         {data.usedRepositorySlotCount} / {data.repositoryLimit} <span class="text-base font-normal text-neutral/50">repos</span>
@@ -92,14 +93,14 @@
     <article class="rounded-xl border border-base-300 bg-base-100 p-5">
       <div class="flex items-center justify-between">
         <p class="text-sm text-neutral/55">Drafts</p>
-        <LogIcon class="h-4 w-4 text-neutral/40" />
+        <ScrollText class="h-4 w-4 text-neutral/40" />
       </div>
       <p class="mt-3 text-2xl font-semibold text-neutral">{data.draftCount}</p>
     </article>
     <article class="rounded-xl border border-base-300 bg-base-100 p-5">
       <div class="flex items-center justify-between">
         <p class="text-sm text-neutral/55">Active repositories</p>
-        <NavIcon name="repositories" class="h-4 w-4 text-neutral/40" />
+        <FolderGit2 class="h-4 w-4 text-neutral/40" />
       </div>
       <p class="mt-3 text-2xl font-semibold text-neutral">{data.activeRepositoryCount}</p>
     </article>
@@ -117,7 +118,7 @@
 
       {#if data.activeRepositories.length === 0}
         <div class="rounded-lg border border-dashed border-base-300 p-6 text-center">
-          <ShipIcon class="mx-auto h-7 w-7 text-neutral/30" />
+          <FolderGit2 class="mx-auto h-7 w-7 text-neutral/30" />
           <p class="mt-2 text-sm text-neutral/55">No active repositories yet.</p>
         </div>
       {:else}
@@ -145,7 +146,7 @@
 
       {#if data.recentReleaseNotes.length === 0}
         <div class="rounded-lg border border-dashed border-base-300 p-6 text-center">
-          <LogIcon class="mx-auto h-7 w-7 text-neutral/30" />
+          <ScrollText class="mx-auto h-7 w-7 text-neutral/30" />
           <p class="mt-2 text-sm text-neutral/55">No release notes created yet.</p>
           {#if setupComplete}
             <a class="btn btn-sm btn-primary mt-4" href="/app/release-notes">Generate release notes</a>

@@ -1,18 +1,18 @@
 <script lang="ts">
+  import Ship from '@lucide/svelte/icons/ship';
+  import ScrollText from '@lucide/svelte/icons/scroll-text';
   import Brand from '$lib/components/Brand.svelte';
-  import ShipIcon from '$lib/components/icons/ShipIcon.svelte';
-  import LogIcon from '$lib/components/icons/LogIcon.svelte';
 
   let { form } = $props();
 
   const features = [
     {
-      icon: ShipIcon,
+      icon: Ship,
       title: 'Ship on every tag',
       body: 'Connect a repo once. ShipLog watches for new tags and drafts notes the moment you cut a release.'
     },
     {
-      icon: LogIcon,
+      icon: ScrollText,
       title: 'A clean log, every time',
       body: 'Commits between releases become a structured markdown changelog you can edit and approve.'
     }
@@ -78,7 +78,7 @@
       <div class="relative">
         <div class="pointer-events-none absolute -top-6 right-4 hidden w-72 rotate-2 rounded-xl border border-base-300 bg-base-100 p-4 shadow-glow lg:block">
           <div class="flex items-center gap-2 text-xs text-neutral/50">
-            <LogIcon class="h-4 w-4 text-secondary" />
+            <ScrollText class="h-4 w-4 text-secondary" />
             <span class="font-mono">v1.4.0 → v1.5.0</span>
           </div>
           <div class="mt-3 space-y-2">
@@ -91,7 +91,7 @@
         <div class="relative w-full max-w-sm rounded-2xl border border-base-300 bg-base-100 p-6 shadow-glow lg:ml-auto">
           <div class="flex items-center gap-2.5">
             <span class="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-primary to-secondary text-primary-content">
-              <ShipIcon class="h-5 w-5" strokeWidth={1.9} />
+              <Ship class="h-5 w-5" strokeWidth={2} />
             </span>
             <h2 class="text-lg font-semibold text-neutral">Sign in to ShipLog</h2>
           </div>

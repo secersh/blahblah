@@ -1,5 +1,6 @@
 <script lang="ts">
-  import ShipIcon from '$lib/components/icons/ShipIcon.svelte';
+  import FolderGit2 from '@lucide/svelte/icons/folder-git-2';
+  import RefreshCw from '@lucide/svelte/icons/refresh-cw';
 
   let { data, form } = $props();
 
@@ -19,9 +20,7 @@
     </div>
     <form method="POST" action="?/syncGithubRepos">
       <button class="btn btn-primary gap-2" type="submit" disabled={!data.hasGithubInstallation}>
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12a9 9 0 1 1-2.64-6.36" /><path d="M21 3v6h-6" />
-        </svg>
+        <RefreshCw class="h-4 w-4" />
         Sync GitHub repos
       </button>
     </form>
@@ -43,7 +42,7 @@
 
   {#if repositories.length === 0}
     <div class="rounded-xl border border-dashed border-base-300 bg-base-100 p-12 text-center">
-      <ShipIcon class="mx-auto h-10 w-10 text-neutral/30" />
+      <FolderGit2 class="mx-auto h-10 w-10 text-neutral/30" />
       <h2 class="mt-4 text-lg font-semibold text-neutral">No repositories connected</h2>
       <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-neutral/60">
         Install the GitHub App and sync repositories to start generating release notes.

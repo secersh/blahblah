@@ -1,5 +1,6 @@
 <script lang="ts">
-  import LogIcon from '$lib/components/icons/LogIcon.svelte';
+  import ScrollText from '@lucide/svelte/icons/scroll-text';
+  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 
   let { data, form } = $props();
 </script>
@@ -10,16 +11,14 @@
 
 <section>
   <a class="inline-flex items-center gap-1.5 text-sm text-neutral/55 transition-colors hover:text-neutral" href="/app/release-notes">
-    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M19 12H5M12 19l-7-7 7-7" />
-    </svg>
+    <ArrowLeft class="h-4 w-4" />
     Back to release notes
   </a>
 
   <div class="mb-6 mt-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
     <div class="flex items-start gap-3">
       <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-secondary/10 text-secondary">
-        <LogIcon class="h-5 w-5" />
+        <ScrollText class="h-5 w-5" />
       </span>
       <div>
         <h1 class="text-2xl font-semibold tracking-tight text-neutral">{data.releaseNote.title}</h1>

@@ -6,7 +6,7 @@ const config = {
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
       },
       boxShadow: {
-        glow: '0 0 0 1px rgba(99,102,241,0.25), 0 8px 30px -12px rgba(99,102,241,0.45)'
+        glow: '0 0 0 1px rgba(245,158,11,0.25), 0 8px 30px -12px rgba(245,158,11,0.45)'
       }
     }
   },
@@ -15,11 +15,11 @@ const config = {
       {
         shiplog: {
           'color-scheme': 'dark',
-          primary: '#6366f1',
-          'primary-content': '#ffffff',
-          secondary: '#22d3ee',
-          'secondary-content': '#04141a',
-          accent: '#f59e0b',
+          primary: '#f59e0b',
+          'primary-content': '#1a1206',
+          secondary: '#fb923c',
+          'secondary-content': '#1a0d04',
+          accent: '#fbbf24',
           'accent-content': '#1a1206',
           neutral: '#e6edf3',
           'neutral-content': '#0d1117',

@@ -6,7 +6,6 @@
   import CreditCard from '@lucide/svelte/icons/credit-card';
   import Settings from '@lucide/svelte/icons/settings';
   import Menu from '@lucide/svelte/icons/menu';
-  import { SiGithub } from '@icons-pack/svelte-simple-icons';
   import Brand from '$lib/components/Brand.svelte';
 
   let { children } = $props();
@@ -28,29 +27,16 @@
     <input id="app-nav" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content min-w-0">
       <header
-        class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-base-300 bg-base-200/80 px-4 backdrop-blur lg:px-8"
+        class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-base-300 bg-base-200/80 px-4 backdrop-blur lg:hidden"
       >
         <label
           for="app-nav"
-          class="btn btn-square btn-ghost btn-sm lg:hidden"
+          class="btn btn-square btn-ghost btn-sm"
           aria-label="Open navigation"
         >
           <Menu class="h-5 w-5" />
         </label>
-        <div class="lg:hidden">
-          <Brand size="sm" href="/app" />
-        </div>
-        <div class="ml-auto flex items-center gap-3">
-          <a
-            class="hidden items-center gap-1.5 text-sm text-neutral/55 transition-colors hover:text-neutral sm:inline-flex"
-            href="https://github.com"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <SiGithub class="h-4 w-4" />
-            GitHub
-          </a>
-        </div>
+        <Brand size="sm" href="/app" />
       </header>
 
       <main class="mx-auto w-full max-w-6xl px-4 py-8 lg:px-8">

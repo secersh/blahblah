@@ -1,6 +1,7 @@
 <script lang="ts">
   import ScrollText from '@lucide/svelte/icons/scroll-text';
   import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+  import FolderGit2 from '@lucide/svelte/icons/folder-git-2';
 
   let { data, form } = $props();
 </script>
@@ -22,10 +23,13 @@
       </span>
       <div>
         <h1 class="text-2xl font-semibold tracking-tight text-neutral">{data.releaseNote.title}</h1>
-        <p class="mt-1 text-sm text-neutral/60">
-          {data.releaseNote.repositoryFullName}
-          · <span class="font-mono text-xs">{data.releaseNote.previous_tag_name} → {data.releaseNote.tag_name}</span>
-        </p>
+        <div class="mt-2 flex flex-wrap items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 rounded-md border border-base-300 bg-base-200/60 px-2 py-0.5 font-mono text-xs text-neutral/75">
+            <FolderGit2 class="h-3.5 w-3.5 shrink-0 text-neutral/45" />
+            {data.releaseNote.repositoryFullName}
+          </span>
+          <span class="font-mono text-xs text-neutral/55">{data.releaseNote.previous_tag_name} → {data.releaseNote.tag_name}</span>
+        </div>
       </div>
     </div>
     <div class="flex items-center gap-2">

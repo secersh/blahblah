@@ -2,6 +2,10 @@
   import ScrollText from '@lucide/svelte/icons/scroll-text';
   import Plus from '@lucide/svelte/icons/plus';
   import X from '@lucide/svelte/icons/x';
+  import SquarePen from '@lucide/svelte/icons/square-pen';
+  import Check from '@lucide/svelte/icons/check';
+  import Trash2 from '@lucide/svelte/icons/trash-2';
+  import FolderGit2 from '@lucide/svelte/icons/folder-git-2';
 
   let { data, form } = $props();
 
@@ -139,6 +143,7 @@
       <table class="table">
         <thead>
           <tr class="border-base-300 text-neutral/55">
+            <th>Repository</th>
             <th>Release</th>
             <th>Range</th>
             <th>Status</th>
@@ -150,8 +155,15 @@
           {#each data.releaseNotes as releaseNote}
             <tr class="border-base-300">
               <td>
-                <p class="font-medium text-neutral">{releaseNote.title}</p>
-                <p class="text-xs text-neutral/50">{releaseNote.repositoryFullName}</p>
+                <span class="inline-flex max-w-full items-center gap-2 font-mono text-sm font-medium text-neutral">
+                  <FolderGit2 class="h-4 w-4 shrink-0 text-primary" />
+                  <span class="truncate">{releaseNote.repositoryFullName}</span>
+                </span>
+              </td>
+              <td>
+                <a class="font-medium text-neutral transition-colors hover:text-primary" href={`/app/release-notes/${releaseNote.id}`}>
+                  {releaseNote.title}
+                </a>
               </td>
               <td class="font-mono text-xs text-neutral/60">{releaseNote.previous_tag_name} → {releaseNote.tag_name}</td>
               <td>
@@ -161,17 +173,46 @@
               </td>
               <td class="text-sm text-neutral/60">{new Date(releaseNote.created_at).toLocaleDateString()}</td>
               <td>
-                <div class="flex flex-wrap justify-end gap-2">
-                  <a class="btn btn-sm btn-outline" href={`/app/release-notes/${releaseNote.id}`}>View / edit</a>
+                <div class="flex items-center justify-end gap-0.5">
+                  <a
+                    class="btn btn-square btn-ghost btn-sm text-neutral/55 hover:text-neutral"
+                    href={`/app/release-notes/${releaseNote.id}`}
+                    aria-label="View and edit"
+                    title="View / edit"
+                  >
+                    <SquarePen class="h-4 w-4" />
+                  </a>
                   {#if releaseNote.status !== 'approved'}
                     <form method="POST" action="?/approveReleaseNote">
                       <input type="hidden" name="releaseNoteId" value={releaseNote.id} />
-                      <button class="btn btn-sm btn-primary" type="submit">Approve</button>
+                      <button
+                        class="btn btn-square btn-ghost btn-sm text-neutral/55 hover:bg-success/10 hover:text-success"
+                        type="submit"
+                        aria-label="Approve release note"
+                        title="Approve"
+                      >
+                        <Check class="h-4 w-4" />
+                      </button>
                     </form>
                   {/if}
-                  <form method="POST" action="?/deleteReleaseNote">
+                  <form
+                    method="POST"
+                    action="?/deleteReleaseNote"
+                    onsubmit={(event) => {
+                      if (!confirm(`Delete "${releaseNote.title}"? This cannot be undone.`)) {
+                        event.preventDefault();
+                      }
+                    }}
+                  >
                     <input type="hidden" name="releaseNoteId" value={releaseNote.id} />
-                    <button class="btn btn-sm btn-outline btn-error" type="submit">Delete</button>
+                    <button
+                      class="btn btn-square btn-ghost btn-sm text-neutral/55 hover:bg-error/10 hover:text-error"
+                      type="submit"
+                      aria-label="Delete release note"
+                      title="Delete"
+                    >
+                      <Trash2 class="h-4 w-4" />
+                    </button>
                   </form>
                 </div>
               </td>

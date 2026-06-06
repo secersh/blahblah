@@ -159,10 +159,13 @@
               {#each data.recentReleaseNotes as releaseNote}
                 <tr class="border-base-300">
                   <td>
-                    <a class="font-medium text-primary hover:underline" href={`/app/release-notes/${releaseNote.id}`}>
+                    <a class="font-medium text-neutral transition-colors hover:text-primary" href={`/app/release-notes/${releaseNote.id}`}>
                       {releaseNote.title}
                     </a>
-                    <p class="text-xs text-neutral/50">{releaseNote.repositoryFullName}</p>
+                    <span class="mt-1 inline-flex max-w-full items-center gap-1.5 rounded-md border border-base-300 bg-base-200/60 px-2 py-0.5 font-mono text-xs text-neutral/75">
+                      <FolderGit2 class="h-3.5 w-3.5 shrink-0 text-neutral/45" />
+                      <span class="truncate">{releaseNote.repositoryFullName}</span>
+                    </span>
                   </td>
                   <td class="font-mono text-xs text-neutral/60">{releaseNote.previous_tag_name} → {releaseNote.tag_name}</td>
                   <td>

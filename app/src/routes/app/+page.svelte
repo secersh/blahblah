@@ -3,6 +3,8 @@
   import ScrollText from '@lucide/svelte/icons/scroll-text';
   import FolderGit2 from '@lucide/svelte/icons/folder-git-2';
   import CreditCard from '@lucide/svelte/icons/credit-card';
+  import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
+  import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 
   let { data, form } = $props();
 
@@ -79,7 +81,7 @@
     </div>
   {/if}
 
-  <div class="mb-8 grid gap-4 md:grid-cols-3">
+  <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <article class="rounded-xl border border-base-300 bg-base-100 p-5">
       <div class="flex items-center justify-between">
         <p class="text-sm text-neutral/55">Plan usage</p>
@@ -96,6 +98,13 @@
         <ScrollText class="h-4 w-4 text-neutral/40" />
       </div>
       <p class="mt-3 text-2xl font-semibold text-neutral">{data.draftCount}</p>
+    </article>
+    <article class="rounded-xl border bg-base-100 p-5 {data.failedCount > 0 ? 'border-error/40' : 'border-base-300'}">
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-neutral/55">Failed</p>
+        <TriangleAlert class="h-4 w-4 {data.failedCount > 0 ? 'text-error' : 'text-neutral/40'}" />
+      </div>
+      <p class="mt-3 text-2xl font-semibold {data.failedCount > 0 ? 'text-error' : 'text-neutral'}">{data.failedCount}</p>
     </article>
     <article class="rounded-xl border border-base-300 bg-base-100 p-5">
       <div class="flex items-center justify-between">
@@ -155,20 +164,43 @@
       {:else}
         <div class="divide-y divide-base-300 overflow-hidden rounded-lg border border-base-300">
           {#each data.recentReleaseNotes as releaseNote}
+            {@const hasFile = releaseNote.status === 'draft' || releaseNote.status === 'approved'}
             <div class="flex items-start justify-between gap-3 p-3">
               <div class="min-w-0 flex-1">
                 <span class="flex min-w-0 items-center gap-2 font-mono text-sm font-medium text-neutral">
                   <FolderGit2 class="h-4 w-4 shrink-0 text-primary" />
                   <span class="truncate">{releaseNote.repositoryFullName}</span>
                 </span>
-                <a class="mt-1 block text-xs text-neutral/55 transition-colors hover:text-primary" href={`/app/release-notes/${releaseNote.id}`}>
-                  {releaseNote.title}
-                  <span class="font-mono text-neutral/45">· {releaseNote.previous_tag_name} → {releaseNote.tag_name}</span>
-                </a>
+                {#if hasFile}
+                  <a class="mt-1 block text-xs text-neutral/55 transition-colors hover:text-primary" href={`/app/release-notes/${releaseNote.id}`}>
+                    {releaseNote.title}
+                    <span class="font-mono text-neutral/45">· {releaseNote.previous_tag_name} → {releaseNote.tag_name}</span>
+                  </a>
+                {:else}
+                  <p class="mt-1 text-xs text-neutral/55">
+                    {releaseNote.title}
+                    <span class="font-mono text-neutral/45">· {releaseNote.previous_tag_name} → {releaseNote.tag_name}</span>
+                  </p>
+                  {#if releaseNote.status === 'failed' && releaseNote.error_message}
+                    <p class="mt-0.5 text-xs text-error/80">{releaseNote.error_message}</p>
+                  {/if}
+                {/if}
               </div>
-              <span class="badge shrink-0 {releaseNote.status === 'approved' ? 'badge-success' : 'badge-ghost'}">
-                {releaseNote.status}
-              </span>
+              {#if releaseNote.status === 'generating'}
+                <span class="badge badge-ghost shrink-0 gap-1.5">
+                  <LoaderCircle class="h-3 w-3 animate-spin" />
+                  generating
+                </span>
+              {:else if releaseNote.status === 'failed'}
+                <span class="badge badge-error shrink-0 gap-1.5">
+                  <TriangleAlert class="h-3 w-3" />
+                  failed
+                </span>
+              {:else if releaseNote.status === 'approved'}
+                <span class="badge badge-success shrink-0">approved</span>
+              {:else}
+                <span class="badge badge-ghost shrink-0">draft</span>
+              {/if}
             </div>
           {/each}
         </div>

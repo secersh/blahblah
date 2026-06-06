@@ -52,9 +52,15 @@ export const load = async ({ locals, url }) => {
     .eq('user_id', locals.user.id)
     .eq('status', 'draft');
 
+  const { count: failedCount } = await locals.supabase
+    .from('release_notes')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', locals.user.id)
+    .eq('status', 'failed');
+
   const { data: recentReleaseNotes } = await locals.supabase
     .from('release_notes')
-    .select('id, title, status, tag_name, previous_tag_name, created_at, repository_id')
+    .select('id, title, status, tag_name, previous_tag_name, created_at, repository_id, error_message')
     .eq('user_id', locals.user.id)
     .order('created_at', { ascending: false })
     .limit(5);
@@ -74,6 +80,7 @@ export const load = async ({ locals, url }) => {
     activeRepositoryCount: activeRepositoryCount ?? 0,
     activeRepositories: activeRepositories ?? [],
     draftCount: draftCount ?? 0,
+    failedCount: failedCount ?? 0,
     githubInstallation: installation,
     githubInstallStatus: url.searchParams.get('github_install'),
     repositoryCount: repositoryCount ?? 0,

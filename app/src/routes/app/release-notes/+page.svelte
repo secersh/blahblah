@@ -1,5 +1,7 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
+  import { createBrowserClient } from '@supabase/ssr';
+  import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY } from '$env/static/public';
   import ScrollText from '@lucide/svelte/icons/scroll-text';
   import Plus from '@lucide/svelte/icons/plus';
   import X from '@lucide/svelte/icons/x';
@@ -12,13 +14,25 @@
 
   let { data, form } = $props();
 
-  // While anything is generating, poll the server so the row flips to draft on
-  // its own. (A Supabase Realtime subscription would replace this later.)
-  const hasGenerating = $derived(data.releaseNotes.some((note) => note.status === 'generating'));
+  // Subscribe to this user's release_notes changes so a note flipping
+  // generating -> draft/failed (from the edge function) updates the list live.
+  const userId = $derived(data.user?.id);
   $effect(() => {
-    if (!hasGenerating) return;
-    const interval = setInterval(() => invalidateAll(), 4000);
-    return () => clearInterval(interval);
+    if (!userId) return;
+
+    const supabase = createBrowserClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY);
+    const channel = supabase
+      .channel('release-notes-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'release_notes', filter: `user_id=eq.${userId}` },
+        () => invalidateAll()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   });
 
   let dialog: HTMLDialogElement;

@@ -18,7 +18,7 @@ export const load = async ({ locals, url }) => {
 
   let releaseNotesQuery = locals.supabase
     .from('release_notes')
-    .select('id, title, status, tag_name, previous_tag_name, created_at, repository_id')
+    .select('id, title, status, tag_name, previous_tag_name, created_at, repository_id, error_message')
     .eq('user_id', locals.user.id);
 
   if (repositoryIdFilter) {
@@ -51,7 +51,7 @@ export const load = async ({ locals, url }) => {
       ...releaseNote,
       repositoryFullName: repositoryNamesById.get(releaseNote.repository_id)
     })),
-    generated: url.searchParams.get('generated') === 'true'
+    queued: url.searchParams.get('queued') === 'true'
   };
 };
 
@@ -185,44 +185,53 @@ export const actions = {
 
     const title = `${repository.full_name}: ${startTag} to ${endTag}`;
     const storagePath = `${locals.user.id}/${repository.full_name}/drafts/${Date.now()}-${endTag}.md`;
-    const draftMarkdown = [
-      `# ${repository.full_name} ${endTag}`,
-      '',
-      `Draft release notes generated from ${startTag} to ${endTag}.`,
-      '',
-      '## Changes',
-      '',
-      '- Release note generation placeholder.',
-      ''
-    ].join('\n');
 
-    const { error: uploadError } = await locals.supabase.storage
-      .from('release-notes')
-      .upload(storagePath, draftMarkdown, {
-        contentType: 'text/markdown',
-        upsert: false
-      });
+    // Create the job row up front in a 'generating' state; the edge function
+    // fills in the draft file and flips the status when it finishes.
+    const { data: created, error: insertError } = await locals.supabase
+      .from('release_notes')
+      .insert({
+        user_id: locals.user.id,
+        repository_id: repository.id,
+        status: 'generating',
+        title,
+        previous_tag_name: startTag,
+        tag_name: endTag,
+        storage_path: storagePath
+      })
+      .select('id')
+      .single();
 
-    if (uploadError) {
-      console.error('Failed to upload release note draft', uploadError);
-      return fail(500, { message: 'Release notes could not be saved. Try again.' });
+    if (insertError || !created) {
+      console.error('Failed to create release note job', insertError);
+      return fail(500, { message: 'Release notes could not be queued. Try again.' });
     }
 
-    const { error } = await locals.supabase.from('release_notes').insert({
-      user_id: locals.user.id,
-      repository_id: repository.id,
-      status: 'draft',
-      title,
-      previous_tag_name: startTag,
-      tag_name: endTag,
-      storage_path: storagePath
+    // Kick off async generation. The function acks immediately (202) and runs
+    // the slow work in the background, so this invoke returns quickly.
+    const { error: invokeError } = await locals.supabase.functions.invoke('generate-release-notes', {
+      body: {
+        releaseNoteId: created.id,
+        repositoryFullName: repository.full_name,
+        owner: repository.owner,
+        repo: repository.name,
+        installationId,
+        startTag,
+        endTag,
+        storagePath
+      }
     });
 
-    if (error) {
-      console.error('Failed to create release note draft', error);
-      return fail(500, { message: 'Release notes could not be created. Try again.' });
+    if (invokeError) {
+      console.error('Failed to start release note generation', invokeError);
+      await locals.supabase
+        .from('release_notes')
+        .update({ status: 'failed', error_message: 'Could not start generation.' })
+        .eq('id', created.id)
+        .eq('user_id', locals.user.id);
+      return fail(502, { message: 'Generation service is unavailable. Try again.' });
     }
 
-    redirect(303, '/app/release-notes?generated=true');
+    redirect(303, '/app/release-notes?queued=true');
   }
 };

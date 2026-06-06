@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { invalidateAll } from '$app/navigation';
   import ScrollText from '@lucide/svelte/icons/scroll-text';
   import Plus from '@lucide/svelte/icons/plus';
   import X from '@lucide/svelte/icons/x';
@@ -6,8 +7,19 @@
   import Check from '@lucide/svelte/icons/check';
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import FolderGit2 from '@lucide/svelte/icons/folder-git-2';
+  import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+  import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 
   let { data, form } = $props();
+
+  // While anything is generating, poll the server so the row flips to draft on
+  // its own. (A Supabase Realtime subscription would replace this later.)
+  const hasGenerating = $derived(data.releaseNotes.some((note) => note.status === 'generating'));
+  $effect(() => {
+    if (!hasGenerating) return;
+    const interval = setInterval(() => invalidateAll(), 4000);
+    return () => clearInterval(interval);
+  });
 
   let dialog: HTMLDialogElement;
   let selectedRepositoryId = $state('');
@@ -88,8 +100,11 @@
     <div class="alert alert-error mb-4 text-sm">{form.message}</div>
   {/if}
 
-  {#if data.generated}
-    <div class="alert alert-success mb-4 text-sm">Release note draft created.</div>
+  {#if data.queued}
+    <div class="alert alert-info mb-4 text-sm">
+      <LoaderCircle class="h-4 w-4 animate-spin" />
+      Generating release notes — this usually takes under a minute.
+    </div>
   {/if}
 
   {#if !hasActiveRepositories}
@@ -161,28 +176,46 @@
                 </span>
               </td>
               <td>
-                <a class="font-medium text-neutral transition-colors hover:text-primary" href={`/app/release-notes/${releaseNote.id}`}>
-                  {releaseNote.title}
-                </a>
+                {#if releaseNote.status === 'generating'}
+                  <span class="font-medium text-neutral/50">{releaseNote.title}</span>
+                {:else}
+                  <a class="font-medium text-neutral transition-colors hover:text-primary" href={`/app/release-notes/${releaseNote.id}`}>
+                    {releaseNote.title}
+                  </a>
+                {/if}
               </td>
               <td class="font-mono text-xs text-neutral/60">{releaseNote.previous_tag_name} → {releaseNote.tag_name}</td>
               <td>
-                <span class="badge {releaseNote.status === 'approved' ? 'badge-success' : 'badge-ghost'}">
-                  {releaseNote.status}
-                </span>
+                {#if releaseNote.status === 'generating'}
+                  <span class="badge badge-ghost gap-1.5">
+                    <LoaderCircle class="h-3 w-3 animate-spin" />
+                    generating
+                  </span>
+                {:else if releaseNote.status === 'failed'}
+                  <span class="badge badge-error gap-1.5" title={releaseNote.error_message ?? undefined}>
+                    <TriangleAlert class="h-3 w-3" />
+                    failed
+                  </span>
+                {:else if releaseNote.status === 'approved'}
+                  <span class="badge badge-success">approved</span>
+                {:else}
+                  <span class="badge badge-ghost">draft</span>
+                {/if}
               </td>
               <td class="text-sm text-neutral/60">{new Date(releaseNote.created_at).toLocaleDateString()}</td>
               <td>
                 <div class="flex items-center justify-end gap-0.5">
-                  <a
-                    class="btn btn-square btn-ghost btn-sm text-neutral/55 hover:text-neutral"
-                    href={`/app/release-notes/${releaseNote.id}`}
-                    aria-label="View and edit"
-                    title="View / edit"
-                  >
-                    <SquarePen class="h-4 w-4" />
-                  </a>
-                  {#if releaseNote.status !== 'approved'}
+                  {#if releaseNote.status !== 'generating'}
+                    <a
+                      class="btn btn-square btn-ghost btn-sm text-neutral/55 hover:text-neutral"
+                      href={`/app/release-notes/${releaseNote.id}`}
+                      aria-label="View and edit"
+                      title="View / edit"
+                    >
+                      <SquarePen class="h-4 w-4" />
+                    </a>
+                  {/if}
+                  {#if releaseNote.status === 'draft'}
                     <form method="POST" action="?/approveReleaseNote">
                       <input type="hidden" name="releaseNoteId" value={releaseNote.id} />
                       <button

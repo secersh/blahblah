@@ -25,6 +25,12 @@ type GitHubTag = {
   tarball_url: string;
 };
 
+const GITHUB_API_HEADERS = {
+  accept: 'application/vnd.github+json',
+  'user-agent': 'ShipLog',
+  'x-github-api-version': '2022-11-28'
+};
+
 async function createGitHubAppJwt() {
   if (!env.GITHUB_APP_ID) {
     throw new Error('GITHUB_APP_ID is not configured.');
@@ -146,15 +152,16 @@ async function createInstallationAccessToken(installationId: number) {
     {
       method: 'POST',
       headers: {
-        accept: 'application/vnd.github+json',
-        authorization: `Bearer ${jwt}`,
-        'x-github-api-version': '2022-11-28'
+        ...GITHUB_API_HEADERS,
+        authorization: `Bearer ${jwt}`
       }
     }
   );
 
   if (!response.ok) {
-    throw new Error(`GitHub installation token request failed with ${response.status}.`);
+    throw new Error(
+      `GitHub installation token request failed with ${response.status}: ${await response.text()}`
+    );
   }
 
   const data = (await response.json()) as { token: string };
@@ -165,14 +172,13 @@ export async function listInstallationRepositories(installationId: number) {
   const token = await createInstallationAccessToken(installationId);
   const response = await fetch('https://api.github.com/installation/repositories?per_page=100', {
     headers: {
-      accept: 'application/vnd.github+json',
-      authorization: `Bearer ${token}`,
-      'x-github-api-version': '2022-11-28'
+      ...GITHUB_API_HEADERS,
+      authorization: `Bearer ${token}`
     }
   });
 
   if (!response.ok) {
-    throw new Error(`GitHub repository sync failed with ${response.status}.`);
+    throw new Error(`GitHub repository sync failed with ${response.status}: ${await response.text()}`);
   }
 
   const data = (await response.json()) as GitHubRepositoriesResponse;
@@ -189,15 +195,14 @@ export async function listRepositoryTags(options: {
     `https://api.github.com/repos/${options.owner}/${options.repo}/tags?per_page=100`,
     {
       headers: {
-        accept: 'application/vnd.github+json',
-        authorization: `Bearer ${token}`,
-        'x-github-api-version': '2022-11-28'
+        ...GITHUB_API_HEADERS,
+        authorization: `Bearer ${token}`
       }
     }
   );
 
   if (!response.ok) {
-    throw new Error(`GitHub tag fetch failed with ${response.status}.`);
+    throw new Error(`GitHub tag fetch failed with ${response.status}: ${await response.text()}`);
   }
 
   return (await response.json()) as GitHubTag[];

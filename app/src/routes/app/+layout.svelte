@@ -8,6 +8,7 @@
   import Menu from '@lucide/svelte/icons/menu';
   import LogOut from '@lucide/svelte/icons/log-out';
   import Brand from '$lib/components/Brand.svelte';
+  import ReleaseNotesRealtime from '$lib/components/ReleaseNotesRealtime.svelte';
 
   let { children, data } = $props();
 
@@ -34,6 +35,8 @@
 </svelte:head>
 
 <div class="min-h-screen">
+  <ReleaseNotesRealtime userId={data.user?.id} />
+
   <div class="drawer lg:drawer-open">
     <input id="app-nav" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content min-w-0">

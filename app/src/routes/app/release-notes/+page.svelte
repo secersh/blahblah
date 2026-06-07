@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { invalidateAll } from '$app/navigation';
-  import { createBrowserClient } from '@supabase/ssr';
-  import { env } from '$env/dynamic/public';
   import ScrollText from '@lucide/svelte/icons/scroll-text';
   import Plus from '@lucide/svelte/icons/plus';
   import X from '@lucide/svelte/icons/x';
@@ -13,30 +10,6 @@
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 
   let { data, form } = $props();
-
-  // Subscribe to this user's release_notes changes so a note flipping
-  // generating -> draft/failed (from the edge function) updates the list live.
-  const userId = $derived(data.user?.id);
-  $effect(() => {
-    if (!userId) return;
-
-    const supabase = createBrowserClient(
-      env.PUBLIC_SUPABASE_URL,
-      env.PUBLIC_SUPABASE_PUBLISHABLE_KEY
-    );
-    const channel = supabase
-      .channel('release-notes-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'release_notes', filter: `user_id=eq.${userId}` },
-        () => invalidateAll()
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  });
 
   let dialog: HTMLDialogElement;
   let selectedRepositoryId = $state('');

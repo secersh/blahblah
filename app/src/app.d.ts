@@ -12,6 +12,13 @@ declare global {
     interface PageData {
       user: User | null;
     }
+
+    interface Platform {
+      env: Env;
+      ctx: ExecutionContext;
+      caches: CacheStorage;
+      cf?: IncomingRequestCfProperties;
+    }
   }
 }
 

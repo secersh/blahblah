@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "shiplog-app",
+  "compatibility_date": "2026-06-07",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "main": ".svelte-kit/cloudflare/_worker.js",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".svelte-kit/cloudflare"
+  },
+  "vars": {
+    "PUBLIC_SUPABASE_URL": "https://znxdmxcbnnsewcagqihp.supabase.co",
+    "PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_CN31SS31v2SYSZOJSt_Hww_mzLbP_X-",
+    "GITHUB_APP_ID": "3979548",
+    "GITHUB_APP_SLUG": "shplog-dev"
+  },
+  "secrets": {
+    "required": [
+      "GITHUB_APP_PRIVATE_KEY"
+    ]
+  },
+  "workers_dev": true,
+  "preview_urls": true,
+  "observability": {
+    "enabled": true
+  }
+}

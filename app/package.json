@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+    "preview": "npm run build && wrangler dev",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "deploy": "npm run build && wrangler deploy",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
     "@lucide/svelte": "^1.17.0",
@@ -22,6 +24,7 @@
     "vite": "^6.0.5"
   },
   "devDependencies": {
+    "@sveltejs/adapter-cloudflare": "^7.2.8",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^25.9.2",
@@ -29,6 +32,7 @@
     "postcss": "^8.4.49",
     "svelte-check": "^4.1.1",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "wrangler": "^4.81.0"
   }
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
   import { createBrowserClient } from '@supabase/ssr';
-  import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY } from '$env/static/public';
+  import { env } from '$env/dynamic/public';
   import ScrollText from '@lucide/svelte/icons/scroll-text';
   import Plus from '@lucide/svelte/icons/plus';
   import X from '@lucide/svelte/icons/x';
@@ -20,7 +20,10 @@
   $effect(() => {
     if (!userId) return;
 
-    const supabase = createBrowserClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY);
+    const supabase = createBrowserClient(
+      env.PUBLIC_SUPABASE_URL,
+      env.PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    );
     const channel = supabase
       .channel('release-notes-changes')
       .on(

@@ -1,4 +1,4 @@
-import { PUBLIC_SUPABASE_PUBLISHABLE_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 import { createServerClient } from '@supabase/ssr';
 import type { CookieSerializeOptions } from 'cookie';
 import type { Cookies } from '@sveltejs/kit';
@@ -10,7 +10,7 @@ type SupabaseCookie = {
 };
 
 export function createSupabaseServerClient(cookies: Cookies) {
-  return createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
+  return createServerClient(env.PUBLIC_SUPABASE_URL, env.PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
     cookies: {
       getAll: () => cookies.getAll(),
       setAll: (cookiesToSet: SupabaseCookie[]) => {

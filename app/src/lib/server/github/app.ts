@@ -1,7 +1,5 @@
-import { GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY_PATH } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { createSign } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
-import { isAbsolute, resolve } from 'node:path';
 
 type GitHubRepository = {
   id: number;
@@ -28,27 +26,23 @@ type GitHubTag = {
   tarball_url: string;
 };
 
-function resolvePrivateKeyPath(path: string) {
-  return isAbsolute(path) ? path : resolve(process.cwd(), '..', path);
-}
-
 async function createGitHubAppJwt() {
-  if (!GITHUB_APP_ID) {
+  if (!env.GITHUB_APP_ID) {
     throw new Error('GITHUB_APP_ID is not configured.');
   }
 
-  if (!GITHUB_APP_PRIVATE_KEY_PATH) {
-    throw new Error('GITHUB_APP_PRIVATE_KEY_PATH is not configured.');
+  if (!env.GITHUB_APP_PRIVATE_KEY) {
+    throw new Error('GITHUB_APP_PRIVATE_KEY is not configured.');
   }
 
-  const privateKey = await readFile(resolvePrivateKeyPath(GITHUB_APP_PRIVATE_KEY_PATH), 'utf8');
+  const privateKey = env.GITHUB_APP_PRIVATE_KEY.replaceAll('\\n', '\n');
   const now = Math.floor(Date.now() / 1000);
   const header = base64UrlEncode(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
   const payload = base64UrlEncode(
     JSON.stringify({
       iat: now - 60,
       exp: now + 9 * 60,
-      iss: GITHUB_APP_ID
+      iss: env.GITHUB_APP_ID
     })
   );
   const unsignedToken = `${header}.${payload}`;

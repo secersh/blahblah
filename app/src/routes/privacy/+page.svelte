@@ -3,7 +3,7 @@
   import Brand from '$lib/components/Brand.svelte';
 
   const title = 'Privacy Policy | ShipLog';
-  const description = 'Temporary privacy policy for ShipLog.';
+  const description = 'Privacy policy for ShipLog.';
   const canonical = SITE_URL + '/privacy';
 </script>
 
@@ -22,57 +22,95 @@
 
   <main class="mx-auto max-w-4xl px-6 pb-20 pt-8 lg:px-8">
     <article class="prose prose-neutral max-w-none">
-      <p class="text-sm font-medium text-primary">Legal placeholder</p>
       <h1>Privacy Policy</h1>
       <p><strong>Last updated:</strong> June 10, 2026</p>
       <p>
-        This privacy policy is temporary placeholder text for ShipLog and will be replaced with a
-        final privacy policy before the service is offered commercially.
+        ShipLog is a small software service that helps generate draft release notes from GitHub
+        repository tags and commit history. This policy explains what information ShipLog collects
+        and how it is used.
       </p>
 
-      <h2>Information we collect</h2>
+      <h2>Information ShipLog Collects</h2>
+      <p>ShipLog may collect and store:</p>
+      <ul>
+        <li>Account information from GitHub, such as your GitHub user ID, username, and email</li>
+        <li>GitHub App installation information</li>
+        <li>Repository metadata for repositories you authorize</li>
+        <li>Repository tags, commit metadata, file-change summaries, and compare data</li>
+        <li>Generated release-note drafts and edits you make to them</li>
+        <li>Basic usage and error information needed to operate and troubleshoot the service</li>
+      </ul>
+
+      <h2>How ShipLog Uses Information</h2>
       <p>
-        ShipLog may collect account information from GitHub, repository metadata for repositories
-        you authorize, generated release-note drafts, and basic usage information needed to operate
-        the service.
+        ShipLog uses information to sign you in, connect GitHub repositories, list repository tags,
+        compare releases, generate draft release notes, display your dashboard, troubleshoot issues,
+        prevent abuse, and improve the product.
       </p>
 
-      <h2>How we use information</h2>
+      <h2>GitHub Data</h2>
       <p>
-        We use information to authenticate users, connect repositories, generate release-note
-        drafts, operate the dashboard, troubleshoot issues, and improve the service.
-      </p>
-
-      <h2>GitHub data</h2>
-      <p>
-        ShipLog only requests access to repositories selected during GitHub App installation.
-        Repository data is used to list repositories, inspect tags, compare releases, and generate
+        ShipLog uses a GitHub App and only requests access to repositories you authorize. GitHub
+        data is used to list repositories, read tags, compare commits between releases, and generate
         release-note drafts.
       </p>
+      <p>You can revoke ShipLog's GitHub access at any time through GitHub.</p>
 
-      <h2>Storage</h2>
+      <h2>Generated Release Notes</h2>
       <p>
-        Generated release-note drafts and related metadata may be stored so you can review, edit,
-        approve, and delete them from the application.
+        Generated release notes and related metadata may be stored so you can review, edit, approve,
+        and delete them from the application.
       </p>
 
-      <h2>Third-party services</h2>
+      <h2>Cookies and Sessions</h2>
       <p>
-        ShipLog uses third-party infrastructure and services such as GitHub, Supabase, Cloudflare,
-        and payment providers where applicable. These services may process information according to
-        their own policies.
+        ShipLog uses cookies or similar session storage to keep you signed in and to complete
+        authentication and GitHub App installation flows.
       </p>
 
-      <h2>Your choices</h2>
+      <h2>Third-Party Services</h2>
       <p>
-        You can remove the GitHub connection from the settings page and delete generated release
-        notes from the application.
+        ShipLog uses third-party services to operate the product, including GitHub, Supabase,
+        Cloudflare, and payment providers where applicable. These services may process information
+        according to their own privacy policies.
+      </p>
+
+      <h2>Payments</h2>
+      <p>
+        If ShipLog offers paid plans, payments are handled by a third-party payment provider.
+        ShipLog does not store your full payment card details.
+      </p>
+
+      <h2>Sharing</h2>
+      <p>
+        ShipLog does not sell your personal information. Information may be shared with service
+        providers as needed to run ShipLog, comply with legal obligations, prevent abuse, or protect
+        the service and its users.
+      </p>
+
+      <h2>Retention and Deletion</h2>
+      <p>
+        ShipLog keeps information while it is needed to provide the service. You can remove your
+        GitHub connection from the settings page and delete generated release notes from the
+        application.
+      </p>
+
+      <h2>Security</h2>
+      <p>
+        I try to use reasonable safeguards to protect ShipLog data, but no small web service can
+        guarantee perfect security.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        This policy may be updated as ShipLog evolves. Continued use of ShipLog after changes means
+        you accept the updated policy.
       </p>
 
       <h2>Contact</h2>
       <p>
-        For questions about this placeholder privacy policy, contact the ShipLog operator through
-        the public project repository or the contact channel published for the service.
+        For questions, contact the ShipLog operator through the public project repository or the
+        contact channel published for the service.
       </p>
     </article>
   </main>

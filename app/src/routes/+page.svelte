@@ -156,4 +156,14 @@
       </div>
     </section>
   </main>
+
+  <footer class="border-t border-base-300">
+    <div class="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-6 text-sm text-neutral/50 sm:flex-row sm:items-center sm:justify-between lg:px-8">
+      <p>&copy; 2026 ShipLog</p>
+      <nav class="flex gap-4" aria-label="Legal">
+        <a class="transition-colors hover:text-neutral" href="/terms">Terms</a>
+        <a class="transition-colors hover:text-neutral" href="/privacy">Privacy</a>
+      </nav>
+    </div>
+  </footer>
 </div>

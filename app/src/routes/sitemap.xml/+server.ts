@@ -4,7 +4,7 @@ import type { RequestHandler } from './$types';
 export const prerender = false;
 
 // Only public, indexable routes belong here. The /app/* area is private.
-const routes = ['/'];
+const routes = ['/', '/terms', '/privacy'];
 
 export const GET: RequestHandler = () => {
   const lastmod = new Date().toISOString().slice(0, 10);

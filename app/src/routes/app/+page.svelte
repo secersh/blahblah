@@ -11,6 +11,73 @@
   const hasGithubInstallation = $derived(Boolean(data.githubInstallation));
   const hasActiveRepository = $derived(data.activeRepositoryCount > 0);
   const setupComplete = $derived(hasGithubInstallation && hasActiveRepository);
+  const usageChartWidth = 600;
+  const usageChartHeight = 180;
+  const usageChartPaddingX = 28;
+  const usageChartPaddingY = 18;
+  const usageChartInnerWidth = usageChartWidth - usageChartPaddingX * 2;
+  const usageChartInnerHeight = usageChartHeight - usageChartPaddingY * 2;
+  const repositoryUsageColor = '#06b6d4';
+  const releaseNoteUsageColor = '#8b5cf6';
+  const usageChartMax = $derived(
+    Math.max(
+      1,
+      ...data.usageHistory.flatMap((period) => [period.repositories, period.releaseNotes])
+    )
+  );
+  const usageChartTicks = $derived(getUsageTicks(usageChartMax));
+  const repositoryUsagePath = $derived(
+    getUsagePath(data.usageHistory.map((period, index) => [getUsageX(index), getUsageY(period.repositories)]))
+  );
+  const releaseNoteUsagePath = $derived(
+    getUsagePath(data.usageHistory.map((period, index) => [getUsageX(index), getUsageY(period.releaseNotes)]))
+  );
+
+  function getUsageX(index: number) {
+    if (data.usageHistory.length <= 1) return usageChartWidth / 2;
+    return usageChartPaddingX + (index / (data.usageHistory.length - 1)) * usageChartInnerWidth;
+  }
+
+  function getUsageY(value: number) {
+    const clamped = Math.max(0, Math.min(usageChartMax, value));
+    return usageChartPaddingY + usageChartInnerHeight - (clamped / usageChartMax) * usageChartInnerHeight;
+  }
+
+  function getUsagePath(points: number[][]) {
+    if (points.length === 0) return '';
+    if (points.length === 1) return `M ${points[0][0]} ${points[0][1]}`;
+
+    const [firstX, firstY] = points[0];
+    const segments = [`M ${firstX} ${firstY}`];
+
+    for (let index = 1; index < points.length; index += 1) {
+      const [previousX, previousY] = points[index - 1];
+      const [currentX, currentY] = points[index];
+      const controlX = previousX + (currentX - previousX) / 2;
+      segments.push(`C ${controlX} ${previousY}, ${controlX} ${currentY}, ${currentX} ${currentY}`);
+    }
+
+    return segments.join(' ');
+  }
+
+  function getUsageTicks(max: number) {
+    if (max <= 5) {
+      return Array.from({ length: max + 1 }, (_, index) => index);
+    }
+
+    const step = Math.ceil(max / 4);
+    const ticks = Array.from({ length: 5 }, (_, index) => index * step);
+    ticks[ticks.length - 1] = max;
+    return [...new Set(ticks)];
+  }
+
+  function formatPeriod(period: string) {
+    return new Date(`${period}-01T00:00:00Z`).toLocaleDateString(undefined, {
+      month: 'short',
+      year: '2-digit',
+      timeZone: 'UTC'
+    });
+  }
 </script>
 
 <svelte:head>
@@ -84,13 +151,10 @@
   <div class="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
     <article class="rounded-xl border border-base-300 bg-base-100 p-5">
       <div class="flex items-center justify-between">
-        <p class="text-sm text-neutral/55">Plan usage</p>
-        <CreditCard class="h-4 w-4 text-neutral/40" />
+        <p class="text-sm text-neutral/55">Active repositories</p>
+        <FolderGit2 class="h-4 w-4 text-neutral/40" />
       </div>
-      <p class="mt-3 text-2xl font-semibold text-neutral">
-        {data.usedRepositorySlotCount} / {data.repositoryLimit} <span class="text-base font-normal text-neutral/50">repos</span>
-      </p>
-      <p class="mt-1 text-xs text-neutral/45">{data.repositoryUsagePeriod}</p>
+      <p class="mt-3 text-2xl font-semibold text-neutral">{data.activeRepositoryCount}</p>
     </article>
     <article class="rounded-xl border border-base-300 bg-base-100 p-5">
       <div class="flex items-center justify-between">
@@ -102,19 +166,22 @@
       </p>
       <p class="mt-1 text-xs text-neutral/45">{data.repositoryUsagePeriod}</p>
     </article>
+    <article class="rounded-xl border border-base-300 bg-base-100 p-5">
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-neutral/55">Plan usage</p>
+        <CreditCard class="h-4 w-4 text-neutral/40" />
+      </div>
+      <p class="mt-3 text-2xl font-semibold text-neutral">
+        {data.usedRepositorySlotCount} / {data.repositoryLimit} <span class="text-base font-normal text-neutral/50">repos</span>
+      </p>
+      <p class="mt-1 text-xs text-neutral/45">{data.repositoryUsagePeriod}</p>
+    </article>
     <article class="rounded-xl border bg-base-100 p-5 {data.failedCount > 0 ? 'border-error/40' : 'border-base-300'}">
       <div class="flex items-center justify-between">
         <p class="text-sm text-neutral/55">Failed</p>
         <TriangleAlert class="h-4 w-4 {data.failedCount > 0 ? 'text-error' : 'text-neutral/40'}" />
       </div>
       <p class="mt-3 text-2xl font-semibold {data.failedCount > 0 ? 'text-error' : 'text-neutral'}">{data.failedCount}</p>
-    </article>
-    <article class="rounded-xl border border-base-300 bg-base-100 p-5">
-      <div class="flex items-center justify-between">
-        <p class="text-sm text-neutral/55">Active repositories</p>
-        <FolderGit2 class="h-4 w-4 text-neutral/40" />
-      </div>
-      <p class="mt-3 text-2xl font-semibold text-neutral">{data.activeRepositoryCount}</p>
     </article>
   </div>
 
@@ -214,4 +281,74 @@
       {/if}
     </section>
   </div>
+
+  <section class="mt-4 rounded-xl border border-base-300 bg-base-100 p-5">
+    <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 class="font-semibold text-neutral">Usage history</h2>
+        <p class="mt-1 text-sm text-neutral/60">Monthly repository slots and release-note generations.</p>
+      </div>
+      <div class="flex items-center gap-4 text-xs text-neutral/55">
+        <span class="inline-flex items-center gap-1.5">
+          <span class="h-2.5 w-2.5 rounded-sm" style={`background-color: ${repositoryUsageColor}`}></span>
+          Repos
+        </span>
+        <span class="inline-flex items-center gap-1.5">
+          <span class="h-2.5 w-2.5 rounded-sm" style={`background-color: ${releaseNoteUsageColor}`}></span>
+          Notes
+        </span>
+      </div>
+    </div>
+
+    <div class="rounded-lg border border-base-300 bg-base-200/40 p-4">
+      <svg class="h-64 w-full overflow-visible" viewBox={`0 0 ${usageChartWidth} ${usageChartHeight}`} role="img">
+        <title>Monthly usage history</title>
+        <desc>Repository slot and release-note counts by month.</desc>
+
+        {#each usageChartTicks as tick}
+          {@const y = getUsageY(tick)}
+          <line
+            x1={usageChartPaddingX}
+            y1={y}
+            x2={usageChartWidth - usageChartPaddingX}
+            y2={y}
+            class="stroke-base-300/70"
+            stroke-width="1"
+          />
+          <text x="8" y={y + 4} text-anchor="end" class="fill-neutral/35 text-[10px]">{tick}</text>
+        {/each}
+
+        <path
+          d={repositoryUsagePath}
+          fill="none"
+          stroke={repositoryUsageColor}
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d={releaseNoteUsagePath}
+          fill="none"
+          stroke={releaseNoteUsageColor}
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+
+        {#each data.usageHistory as period, index}
+          {@const x = getUsageX(index)}
+          <circle cx={x} cy={getUsageY(period.repositories)} r="2.25" fill={repositoryUsageColor} />
+          <circle cx={x} cy={getUsageY(period.releaseNotes)} r="2.25" fill={releaseNoteUsageColor} />
+          <text
+            x={x}
+            y={usageChartHeight - 1}
+            text-anchor="middle"
+            class="fill-neutral/45 text-[10px]"
+          >
+            {formatPeriod(period.period)}
+          </text>
+        {/each}
+      </svg>
+    </div>
+  </section>
 </section>

@@ -9,6 +9,19 @@ function getCurrentPeriodKey() {
   return new Date().toISOString().slice(0, 7);
 }
 
+function getRecentPeriodKeys(count = 6) {
+  const periods = [];
+  const date = new Date();
+  date.setUTCDate(1);
+
+  for (let index = count - 1; index >= 0; index -= 1) {
+    const periodDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() - index, 1));
+    periods.push(periodDate.toISOString().slice(0, 7));
+  }
+
+  return periods;
+}
+
 export const load = async ({ locals, url }) => {
   if (!locals.user) {
     redirect(303, `/?next=${encodeURIComponent(url.pathname)}`);
@@ -83,6 +96,29 @@ export const load = async ({ locals, url }) => {
     (recentRepositories ?? []).map((repository) => [repository.id, repository.full_name])
   );
 
+  const usagePeriods = getRecentPeriodKeys();
+  const { data: repositoryUsageHistoryRows } = await locals.supabase
+    .from('repository_usage_periods')
+    .select('period_key')
+    .eq('user_id', locals.user.id)
+    .in('period_key', usagePeriods);
+
+  const { data: releaseNoteUsageHistoryRows } = await locals.supabase
+    .from('release_note_usage_periods')
+    .select('period_key')
+    .eq('user_id', locals.user.id)
+    .in('period_key', usagePeriods);
+
+  const repositoryUsageByPeriod = new Map<string, number>();
+  for (const row of repositoryUsageHistoryRows ?? []) {
+    repositoryUsageByPeriod.set(row.period_key, (repositoryUsageByPeriod.get(row.period_key) ?? 0) + 1);
+  }
+
+  const releaseNoteUsageByPeriod = new Map<string, number>();
+  for (const row of releaseNoteUsageHistoryRows ?? []) {
+    releaseNoteUsageByPeriod.set(row.period_key, (releaseNoteUsageByPeriod.get(row.period_key) ?? 0) + 1);
+  }
+
   return {
     activeRepositoryCount: activeRepositoryCount ?? 0,
     activeRepositories: activeRepositories ?? [],
@@ -97,6 +133,11 @@ export const load = async ({ locals, url }) => {
     recentReleaseNotes: (recentReleaseNotes ?? []).map((releaseNote) => ({
       ...releaseNote,
       repositoryFullName: recentRepositoryNamesById.get(releaseNote.repository_id)
+    })),
+    usageHistory: usagePeriods.map((period) => ({
+      period,
+      releaseNotes: releaseNoteUsageByPeriod.get(period) ?? 0,
+      repositories: repositoryUsageByPeriod.get(period) ?? 0
     })),
     usedReleaseNoteCount: usedReleaseNoteCount ?? 0,
     usedRepositorySlotCount: usedRepositorySlotCount ?? 0

@@ -49,18 +49,21 @@
       </p>
     </div>
   {:else}
-    <div class="mb-4 flex flex-col gap-3 rounded-xl border border-base-300 bg-base-100 p-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <p class="font-medium text-neutral">Active repositories</p>
-        <p class="mt-1 text-sm text-neutral/60">
-          Free plan includes {data.repositoryLimit} repository per month. If you change repository
-          access on GitHub, sync again.
+    <div class="mb-4 rounded-xl border border-base-300 bg-base-100 p-4">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm font-medium text-neutral">Free plan repositories</p>
+          <p class="mt-1 text-xs text-neutral/55">{data.periodKey}</p>
+        </div>
+        <p class="text-sm text-neutral/65">
+          <span class="font-semibold text-neutral">{data.usedRepositorySlotCount}</span> / {data.repositoryLimit} used
         </p>
       </div>
-      <div class="flex items-center gap-3">
-        <div class="badge badge-primary badge-lg">
-          {data.usedRepositorySlotCount} / {data.repositoryLimit} used
-        </div>
+
+      <div class="mt-3 flex flex-col gap-3 border-t border-base-300 pt-3 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-sm text-neutral/60">
+          If you change repository access on GitHub, sync again.
+        </p>
         <a class="btn btn-sm btn-outline" href="/app/billing">Upgrade</a>
       </div>
     </div>
@@ -108,9 +111,9 @@
     </div>
 
     {#if isAtRepositoryLimit}
-      <p class="mt-3 text-sm text-neutral/55">
-        Monthly limit reached for {data.periodKey}. Upgrade to enable more repositories.
-      </p>
+      <div class="alert alert-warning mt-4 text-sm">
+        Free plan monthly repository quota reached. Upgrade to enable more repositories.
+      </div>
     {/if}
   {/if}
 </section>

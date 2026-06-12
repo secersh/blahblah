@@ -85,7 +85,9 @@
         <div class="mt-auto space-y-3 pt-6">
           <div class="rounded-xl border border-base-300 bg-base-100/60 p-4">
             <p class="text-xs font-medium text-neutral/55">Free plan</p>
-            <p class="mt-1 text-sm text-neutral/70">1 repository included.</p>
+            <p class="mt-1 text-sm leading-5 text-neutral/70">
+              1 repository and 20 release notes per month.
+            </p>
             <a class="btn btn-primary btn-sm mt-3 w-full" href="/app/billing">Upgrade</a>
           </div>
 

@@ -69,7 +69,7 @@
   {@html `<script type="application/ld+json">${jsonLd}</` + `script>`}
 </svelte:head>
 
-<div class="min-h-screen">
+<div class="flex min-h-screen flex-col">
   <header class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5 lg:px-8">
     <Brand size="md" href="/" />
     <a class="btn btn-sm btn-ghost gap-2" href="#signin">
@@ -77,7 +77,7 @@
     </a>
   </header>
 
-  <main class="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-20 pt-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-8 lg:pt-16">
+  <main class="mx-auto grid w-full max-w-6xl flex-1 items-center gap-12 px-6 pb-20 pt-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-8 lg:pt-16">
     <section>
       <span class="inline-flex items-center gap-2 rounded-full border border-base-300 bg-base-100/60 px-3 py-1 text-xs font-medium text-neutral/70">
         <span class="h-1.5 w-1.5 rounded-full bg-success"></span>

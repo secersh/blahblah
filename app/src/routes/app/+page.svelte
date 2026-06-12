@@ -118,8 +118,8 @@
     </article>
   </div>
 
-  <div class="grid gap-4 xl:grid-cols-4">
-    <section class="rounded-xl border border-base-300 bg-base-100 p-5 xl:col-span-1">
+  <div class="grid gap-4 xl:grid-cols-[1.5fr_2.5fr]">
+    <section class="rounded-xl border border-base-300 bg-base-100 p-5">
       <div class="mb-4 flex items-center justify-between gap-3">
         <div>
           <h2 class="font-semibold text-neutral">Active repositories</h2>
@@ -134,12 +134,16 @@
           <p class="mt-2 text-sm text-neutral/55">No active repositories yet.</p>
         </div>
       {:else}
-        <div class="grid gap-3">
+        <div class="divide-y divide-base-300 overflow-hidden rounded-lg border border-base-300">
           {#each data.activeRepositories as repository}
-            <article class="rounded-lg border border-base-300 bg-base-200/40 p-4">
-              <p class="font-medium text-neutral">{repository.full_name}</p>
-              <p class="mt-1 text-sm text-neutral/55">
-                {repository.private ? 'Private' : 'Public'} · {repository.default_branch ?? 'default branch unknown'}
+            <article class="p-3">
+              <span class="flex min-w-0 items-center gap-2 font-mono text-sm font-medium text-neutral">
+                <FolderGit2 class="h-4 w-4 shrink-0 text-primary" />
+                <span class="truncate">{repository.full_name}</span>
+              </span>
+              <p class="mt-1 text-xs text-neutral/55">
+                {repository.private ? 'Private' : 'Public'}
+                <span class="font-mono text-neutral/45">· {repository.default_branch ?? 'default branch unknown'}</span>
               </p>
             </article>
           {/each}
@@ -147,7 +151,7 @@
       {/if}
     </section>
 
-    <section class="rounded-xl border border-base-300 bg-base-100 p-5 xl:col-span-3">
+    <section class="rounded-xl border border-base-300 bg-base-100 p-5">
       <div class="mb-4 flex items-center justify-between gap-3">
         <div>
           <h2 class="font-semibold text-neutral">Recent release notes</h2>

@@ -8,7 +8,11 @@
   let repositoryPendingDeactivation = $state<{ id: string; full_name: string } | null>(null);
 
   const repositories = $derived(data.repositories);
-  const isAtRepositoryLimit = $derived(data.usedRepositorySlotCount >= data.repositoryLimit);
+  const isAtRepositoryLimit = $derived(
+    data.repositoryLimit !== null && data.usedRepositorySlotCount >= data.repositoryLimit
+  );
+  const repositoryLimitLabel = $derived(data.repositoryLimit === null ? 'Unlimited' : data.repositoryLimit);
+  const planName = $derived(data.billing.currentPlanDefinition.name);
 
   function openDeactivateDialog(repository: { id: string; full_name: string }) {
     repositoryPendingDeactivation = repository;
@@ -64,10 +68,10 @@
       <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div class="flex items-center gap-1.5">
-            <p class="text-sm font-medium text-neutral">Free plan repositories</p>
+            <p class="text-sm font-medium text-neutral">{planName} plan repositories</p>
             <span
               class="tooltip tooltip-right inline-flex h-6 w-6 items-center justify-center rounded-full text-neutral/55 transition-colors hover:bg-base-200 hover:text-neutral"
-              data-tip="Free plan allows 1 repository per month. Deactivating a repo pauses generation but does not free this month's slot. You can switch next month or upgrade."
+              data-tip={`${planName} plan repository usage is tracked monthly. Deactivating a repo pauses generation but does not remove this month's usage record.`}
             >
               <CircleHelp class="h-4 w-4" />
             </span>
@@ -75,7 +79,7 @@
           <p class="mt-1 text-xs text-neutral/55">{data.periodKey}</p>
         </div>
         <p class="text-sm text-neutral/65">
-          <span class="font-semibold text-neutral">{data.usedRepositorySlotCount}</span> / {data.repositoryLimit} used
+          <span class="font-semibold text-neutral">{data.usedRepositorySlotCount}</span> / {repositoryLimitLabel} used
         </p>
       </div>
     </div>
@@ -125,7 +129,7 @@
                         class="btn btn-sm btn-outline"
                         type="submit"
                         disabled
-                        aria-label="Activate unavailable: free plan monthly repository quota reached"
+                        aria-label="Activate unavailable: monthly repository quota reached"
                       >
                         Activate
                       </button>
@@ -145,7 +149,7 @@
 
     {#if isAtRepositoryLimit}
       <div class="alert alert-warning mt-4 text-sm">
-        Free plan monthly repository quota reached. Upgrade to enable more repositories.
+        {planName} plan monthly repository quota reached. Upgrade to enable more repositories.
       </div>
     {/if}
   {/if}
@@ -170,9 +174,11 @@
         </p>
       </div>
 
-      <div class="alert alert-warning mt-4 text-sm">
-        On the free plan, deactivating this repository does not free this month's repository slot.
-      </div>
+      {#if data.billing.currentPlan === 'free'}
+        <div class="alert alert-warning mt-4 text-sm">
+          On the free plan, deactivating this repository does not free this month's repository slot.
+        </div>
+      {/if}
 
       <div class="mt-6 flex justify-end gap-2">
         <button class="btn btn-ghost btn-sm" type="button" onclick={closeDeactivateDialog}>Cancel</button>

@@ -18,10 +18,15 @@
     supabase.realtime.setAuth(accessToken);
 
     const channel = supabase
-      .channel(`release-notes-changes-${userId}`)
+      .channel(`app-changes-${userId}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'release_notes', filter: `user_id=eq.${userId}` },
+        () => invalidateAll()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'billing_subscriptions', filter: `user_id=eq.${userId}` },
         () => invalidateAll()
       )
       .subscribe();

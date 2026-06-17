@@ -1,8 +1,8 @@
+import { getUserBilling } from '$lib/server/billing';
 import { listRepositoryTags } from '$lib/server/github/app';
 import { fail, redirect } from '@sveltejs/kit';
 
 const RELEASE_NOTE_STATUSES = ['draft', 'approved', 'failed'];
-const FREE_RELEASE_NOTE_LIMIT = 20;
 
 function getCurrentPeriodKey() {
   return new Date().toISOString().slice(0, 7);
@@ -12,6 +12,8 @@ export const load = async ({ locals, url }) => {
   if (!locals.user) {
     redirect(303, `/?next=${encodeURIComponent(url.pathname)}`);
   }
+
+  const billing = await getUserBilling(locals.supabase, locals.user.id);
 
   const repositoryIdFilter = url.searchParams.get('repositoryId') ?? '';
   const statusFilter = url.searchParams.get('status') ?? '';
@@ -57,11 +59,12 @@ export const load = async ({ locals, url }) => {
 
   return {
     activeRepositories: activeRepositories ?? [],
+    billing,
     filters: {
       repositoryId: repositoryIdFilter,
       status: statusFilter
     },
-    releaseNoteLimit: FREE_RELEASE_NOTE_LIMIT,
+    releaseNoteLimit: billing.limits.releaseNotes,
     releaseNoteUsagePeriod: periodKey,
     releaseNotes: (releaseNotes ?? []).map((releaseNote) => ({
       ...releaseNote,
@@ -204,13 +207,14 @@ export const actions = {
       ? `${repository.full_name}: ${startTag} to ${endTag}`
       : `${repository.full_name}: initial release to ${endTag}`;
     const storagePath = `${locals.user.id}/${repository.full_name}/drafts/${Date.now()}-${endTag}.md`;
+    const billing = await getUserBilling(locals.supabase, locals.user.id);
 
     // Create the job row and record monthly usage atomically in Postgres, so
-    // parallel submits cannot exceed the free-plan generation quota.
+    // parallel submits cannot exceed the current plan quota.
     const { data: createdReleaseNoteId, error: queueError } = await locals.supabase.rpc(
       'queue_release_note_generation',
       {
-        free_monthly_limit: FREE_RELEASE_NOTE_LIMIT,
+        free_monthly_limit: billing.limits.releaseNotes,
         previous_tag_name: startTag || null,
         repository_id: repository.id,
         storage_path: storagePath,
@@ -222,7 +226,7 @@ export const actions = {
     if (queueError || !createdReleaseNoteId) {
       if (queueError?.message?.includes('release_note_quota_exceeded')) {
         return fail(400, {
-          message: `Free plan supports ${FREE_RELEASE_NOTE_LIMIT} release notes per month. Upgrade to generate more.`
+          message: `${billing.currentPlanDefinition.name} plan release-note quota reached. Upgrade to generate more.`
         });
       }
 

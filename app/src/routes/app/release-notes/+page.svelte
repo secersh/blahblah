@@ -21,7 +21,11 @@
   let tagsError = $state('');
 
   const hasActiveRepositories = $derived(data.activeRepositories.length > 0);
-  const hasReleaseNoteQuota = $derived(data.usedReleaseNoteCount < data.releaseNoteLimit);
+  const hasReleaseNoteQuota = $derived(
+    data.releaseNoteLimit === null || data.usedReleaseNoteCount < data.releaseNoteLimit
+  );
+  const releaseNoteLimitLabel = $derived(data.releaseNoteLimit === null ? 'Unlimited' : data.releaseNoteLimit);
+  const planName = $derived(data.billing.currentPlanDefinition.name);
   const startTagIndex = $derived(tags.findIndex((tag) => tag.name === selectedStartTag));
   const endTagIndex = $derived(tags.findIndex((tag) => tag.name === selectedEndTag));
   const canChooseTags = $derived(hasActiveRepositories && tags.length >= 1);
@@ -114,12 +118,12 @@
 
   <div class="mb-4 rounded-xl border border-base-300 bg-base-100 p-4">
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <div class="flex items-center gap-1.5">
-          <p class="text-sm font-medium text-neutral">Free plan release notes</p>
+        <div>
+          <div class="flex items-center gap-1.5">
+          <p class="text-sm font-medium text-neutral">{planName} plan release notes</p>
           <span
             class="tooltip tooltip-right inline-flex h-6 w-6 items-center justify-center rounded-full text-neutral/55 transition-colors hover:bg-base-200 hover:text-neutral"
-            data-tip="Free plan allows 20 generated release notes per month. Failed generations still count because they consume generation work."
+            data-tip={`${planName} plan release-note usage is tracked monthly. Failed generations still count because they consume generation work.`}
           >
             <CircleHelp class="h-4 w-4" />
           </span>
@@ -127,14 +131,14 @@
         <p class="mt-1 text-xs text-neutral/55">{data.releaseNoteUsagePeriod}</p>
       </div>
       <p class="text-sm text-neutral/65">
-        <span class="font-semibold text-neutral">{data.usedReleaseNoteCount}</span> / {data.releaseNoteLimit} generated
+        <span class="font-semibold text-neutral">{data.usedReleaseNoteCount}</span> / {releaseNoteLimitLabel} generated
       </p>
     </div>
   </div>
 
   {#if !hasReleaseNoteQuota}
     <div class="alert alert-warning mb-4 text-sm">
-      Free plan monthly release-note quota reached. Upgrade to generate more.
+      {planName} plan monthly release-note quota reached. Upgrade to generate more.
     </div>
   {/if}
 
@@ -296,7 +300,7 @@
       Choose an active repository, an end tag, and optionally a previous tag.
     </p>
     <p class="mt-2 text-xs text-neutral/50">
-      {data.usedReleaseNoteCount} / {data.releaseNoteLimit} free release notes used this month.
+      {data.usedReleaseNoteCount} / {releaseNoteLimitLabel} release notes used this month.
     </p>
 
     <form class="mt-6 grid gap-4" method="POST" action="?/generateReleaseNotes">

@@ -16,6 +16,17 @@
   const avatarUrl = $derived(meta.avatar_url);
   const displayName = $derived(meta.user_name || meta.full_name || meta.name || data.user?.email || 'Account');
   const email = $derived(data.user?.email ?? '');
+  const repositoryLimitLabel = $derived(
+    data.billing.limits.repositories === null ? 'Unlimited repositories' : `${data.billing.limits.repositories} repositories`
+  );
+  const releaseNoteLimitLabel = $derived(
+    data.billing.limits.releaseNotes === null
+      ? 'unlimited release notes'
+      : `${data.billing.limits.releaseNotes} release notes`
+  );
+  const billingIntervalLabel = $derived(
+    data.billing.currentInterval ? `${data.billing.currentInterval} subscription` : 'subscription'
+  );
 
   const navItems = [
     { href: '/app', icon: LayoutDashboard, label: 'Dashboard' },
@@ -84,11 +95,26 @@
 
         <div class="mt-auto space-y-3 pt-6">
           <div class="rounded-xl border border-base-300 bg-base-100/60 p-4">
-            <p class="text-xs font-medium text-neutral/55">Free plan</p>
-            <p class="mt-1 text-sm leading-5 text-neutral/70">
-              1 repository and 20 release notes per month.
+            <p class="text-xs font-medium text-neutral/55">
+              {data.billing.currentPlanDefinition.name} plan
+              {#if data.billing.currentPlan !== 'free'}
+                <span class="text-neutral/40"> / {billingIntervalLabel}</span>
+              {/if}
             </p>
-            <a class="btn btn-primary btn-sm mt-3 w-full" href="/app/billing">Upgrade</a>
+            <p class="mt-1 text-sm leading-5 text-neutral/70">
+              {repositoryLimitLabel} and {releaseNoteLimitLabel} per month.
+            </p>
+            {#if data.billing.hasPaymentIssue}
+              <div class="mt-3 rounded-lg border border-warning/40 bg-warning/15 p-3">
+                <p class="text-xs font-semibold text-neutral">Payment needs attention</p>
+                <a class="btn btn-warning btn-xs mt-2 w-full" href="/app/billing">
+                  Review billing
+                </a>
+              </div>
+            {/if}
+            <a class="btn btn-primary btn-sm mt-3 w-full" href="/app/billing">
+              {data.billing.currentPlan === 'free' ? 'Upgrade' : 'Billing'}
+            </a>
           </div>
 
           <div class="flex items-center gap-3 rounded-xl border border-base-300 bg-base-100/60 p-2.5">

@@ -1,7 +1,7 @@
+import { getUserBilling } from '$lib/server/billing';
+import { hasReachedLimit } from '$lib/server/plans';
 import { listInstallationRepositories } from '$lib/server/github/app';
 import { fail, redirect } from '@sveltejs/kit';
-
-const FREE_REPOSITORY_LIMIT = 1;
 
 function getCurrentPeriodKey() {
   return new Date().toISOString().slice(0, 7);
@@ -11,6 +11,8 @@ export const load = async ({ locals, url }) => {
   if (!locals.user) {
     redirect(303, `/?next=${encodeURIComponent(url.pathname)}`);
   }
+
+  const billing = await getUserBilling(locals.supabase, locals.user.id);
 
   const { data: installation } = await locals.supabase
     .from('github_installations')
@@ -43,9 +45,10 @@ export const load = async ({ locals, url }) => {
 
   return {
     activeRepositoryCount,
+    billing,
     hasGithubInstallation: Boolean(installation),
     periodKey,
-    repositoryLimit: FREE_REPOSITORY_LIMIT,
+    repositoryLimit: billing.limits.repositories,
     repositories: (repositories ?? []).map((repository) => ({
       ...repository,
       usedThisPeriod: usedRepositoryIds.has(repository.id)
@@ -154,6 +157,7 @@ export const actions = {
     const periodKey = getCurrentPeriodKey();
 
     if (nextActive && !repository.active) {
+      const billing = await getUserBilling(locals.supabase, locals.user.id);
       const { data: existingUsage } = await locals.supabase
         .from('repository_usage_periods')
         .select('id')
@@ -169,9 +173,9 @@ export const actions = {
           .eq('user_id', locals.user.id)
           .eq('period_key', periodKey);
 
-        if ((usedSlotCount ?? 0) >= FREE_REPOSITORY_LIMIT) {
+        if (hasReachedLimit(usedSlotCount ?? 0, billing.limits.repositories)) {
           return fail(400, {
-            message: 'Free plan supports 1 repository per month. Upgrade to enable more.'
+            message: `${billing.currentPlanDefinition.name} plan repository quota reached. Upgrade to enable more.`
           });
         }
 

@@ -1,9 +1,7 @@
+import { getUserBilling } from '$lib/server/billing';
 import { env } from '$env/dynamic/private';
 import { fail, redirect } from '@sveltejs/kit';
 import { randomUUID } from 'node:crypto';
-
-const FREE_REPOSITORY_LIMIT = 1;
-const FREE_RELEASE_NOTE_LIMIT = 20;
 
 function getCurrentPeriodKey() {
   return new Date().toISOString().slice(0, 7);
@@ -26,6 +24,8 @@ export const load = async ({ locals, url }) => {
   if (!locals.user) {
     redirect(303, `/?next=${encodeURIComponent(url.pathname)}`);
   }
+
+  const billing = await getUserBilling(locals.supabase, locals.user.id);
 
   const { data: installation } = await locals.supabase
     .from('github_installations')
@@ -127,8 +127,8 @@ export const load = async ({ locals, url }) => {
     githubInstallation: installation,
     githubInstallStatus: url.searchParams.get('github_install'),
     repositoryCount: repositoryCount ?? 0,
-    repositoryLimit: FREE_REPOSITORY_LIMIT,
-    releaseNoteLimit: FREE_RELEASE_NOTE_LIMIT,
+    repositoryLimit: billing.limits.repositories,
+    releaseNoteLimit: billing.limits.releaseNotes,
     repositoryUsagePeriod: periodKey,
     recentReleaseNotes: (recentReleaseNotes ?? []).map((releaseNote) => ({
       ...releaseNote,

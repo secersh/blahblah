@@ -11,6 +11,8 @@
   const hasGithubInstallation = $derived(Boolean(data.githubInstallation));
   const hasActiveRepository = $derived(data.activeRepositoryCount > 0);
   const setupComplete = $derived(hasGithubInstallation && hasActiveRepository);
+  const repositoryLimitLabel = $derived(data.repositoryLimit === null ? 'Unlimited' : data.repositoryLimit);
+  const releaseNoteLimitLabel = $derived(data.releaseNoteLimit === null ? 'Unlimited' : data.releaseNoteLimit);
   const usageChartWidth = 600;
   const usageChartHeight = 180;
   const usageChartPaddingX = 28;
@@ -162,7 +164,7 @@
         <ScrollText class="h-4 w-4 text-neutral/40" />
       </div>
       <p class="mt-3 text-2xl font-semibold text-neutral">
-        {data.usedReleaseNoteCount} / {data.releaseNoteLimit}
+        {data.usedReleaseNoteCount} / {releaseNoteLimitLabel}
       </p>
       <p class="mt-1 text-xs text-neutral/45">{data.repositoryUsagePeriod}</p>
     </article>
@@ -172,7 +174,7 @@
         <CreditCard class="h-4 w-4 text-neutral/40" />
       </div>
       <p class="mt-3 text-2xl font-semibold text-neutral">
-        {data.usedRepositorySlotCount} / {data.repositoryLimit} <span class="text-base font-normal text-neutral/50">repos</span>
+        {data.usedRepositorySlotCount} / {repositoryLimitLabel} <span class="text-base font-normal text-neutral/50">repos</span>
       </p>
       <p class="mt-1 text-xs text-neutral/45">{data.repositoryUsagePeriod}</p>
     </article>

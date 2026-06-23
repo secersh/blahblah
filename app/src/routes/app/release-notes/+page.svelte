@@ -374,7 +374,7 @@
 {/if}
 
 <dialog class="modal" bind:this={dialog}>
-  <div class="modal-box max-w-2xl">
+  <div class="modal-box max-w-2xl overflow-visible">
     <form method="dialog">
       <button class="btn btn-circle btn-ghost btn-sm absolute right-4 top-4" aria-label="Close">
         <X class="h-4 w-4" />

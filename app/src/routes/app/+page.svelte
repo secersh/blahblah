@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Ship from '@lucide/svelte/icons/ship';
+  import MessageCircle from '@lucide/svelte/icons/message-circle';
   import ScrollText from '@lucide/svelte/icons/scroll-text';
   import FolderGit2 from '@lucide/svelte/icons/folder-git-2';
   import CreditCard from '@lucide/svelte/icons/credit-card';
@@ -19,8 +19,8 @@
   const usageChartPaddingY = 18;
   const usageChartInnerWidth = usageChartWidth - usageChartPaddingX * 2;
   const usageChartInnerHeight = usageChartHeight - usageChartPaddingY * 2;
-  const repositoryUsageColor = '#06b6d4';
-  const releaseNoteUsageColor = '#8b5cf6';
+  const repositoryUsageColor = '#ff5bbd';
+  const releaseNoteUsageColor = '#6d4aff';
   const usageChartMax = $derived(
     Math.max(
       1,
@@ -83,7 +83,7 @@
 </script>
 
 <svelte:head>
-  <title>Dashboard | ShipLog</title>
+  <title>Dashboard | Blah Blah</title>
 </svelte:head>
 
 <section>
@@ -92,9 +92,7 @@
       <h1 class="text-2xl font-semibold tracking-tight text-neutral">Dashboard</h1>
       <p class="mt-1 text-sm text-neutral/60">Track connected repositories and generated drafts.</p>
     </div>
-    <a class="btn btn-primary gap-2" href={setupComplete ? '/app/release-notes' : '/app/repositories'}>
-      {setupComplete ? 'View release notes' : 'Finish setup'}
-    </a>
+    <a class="btn btn-primary gap-2" href="#usage-history">Usage history</a>
   </div>
 
   {#if form?.message}
@@ -105,12 +103,12 @@
     <div class="mb-8 rounded-xl border border-base-300 bg-base-100 p-6">
       <div class="mb-5 flex items-start gap-3">
         <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-          <Ship class="h-5 w-5" />
+          <MessageCircle class="h-5 w-5" />
         </span>
         <div>
           <h2 class="text-lg font-semibold text-neutral">Get set up</h2>
           <p class="mt-1 text-sm text-neutral/60">
-            Install the GitHub App, allow repository access, then choose which repository ShipLog
+            Install the GitHub App, allow repository access, then choose which repository Blah Blah
             should generate release notes for.
           </p>
         </div>
@@ -121,7 +119,7 @@
           <div>
             <p class="font-medium text-neutral">1. Install GitHub App</p>
             <p class="mt-1 text-sm text-neutral/60">
-              {hasGithubInstallation ? 'GitHub is connected.' : 'Allow ShipLog to access selected repositories.'}
+              {hasGithubInstallation ? 'GitHub is connected.' : 'Allow Blah Blah to access selected repositories.'}
             </p>
           </div>
           {#if hasGithubInstallation}
@@ -178,12 +176,12 @@
       </p>
       <p class="mt-1 text-xs text-neutral/45">{data.repositoryUsagePeriod}</p>
     </article>
-    <article class="rounded-xl border bg-base-100 p-5 {data.failedCount > 0 ? 'border-error/40' : 'border-base-300'}">
+    <article class="rounded-xl border p-5 {data.failedCount > 0 ? 'failed-summary-card border-[#11100d]' : 'border-base-300 bg-base-100'}">
       <div class="flex items-center justify-between">
         <p class="text-sm text-neutral/55">Failed</p>
-        <TriangleAlert class="h-4 w-4 {data.failedCount > 0 ? 'text-error' : 'text-neutral/40'}" />
+        <TriangleAlert class="h-4 w-4 {data.failedCount > 0 ? 'text-[#d72638]' : 'text-neutral/40'}" />
       </div>
-      <p class="mt-3 text-2xl font-semibold {data.failedCount > 0 ? 'text-error' : 'text-neutral'}">{data.failedCount}</p>
+      <p class="mt-3 text-2xl font-semibold {data.failedCount > 0 ? 'text-[#d72638]' : 'text-neutral'}">{data.failedCount}</p>
     </article>
   </div>
 
@@ -203,9 +201,9 @@
           <p class="mt-2 text-sm text-neutral/55">No active repositories yet.</p>
         </div>
       {:else}
-        <div class="divide-y divide-base-300 overflow-hidden rounded-lg border border-base-300">
+        <div class="panel-flat divide-y divide-base-300 overflow-hidden rounded-lg border border-base-300">
           {#each data.activeRepositories as repository}
-            <article class="p-3">
+            <a class="block p-3 transition-colors hover:text-primary" href="/app/repositories">
               <span class="flex min-w-0 items-center gap-2 font-mono text-sm font-medium text-neutral">
                 <FolderGit2 class="h-4 w-4 shrink-0 text-primary" />
                 <span class="truncate">{repository.full_name}</span>
@@ -214,7 +212,7 @@
                 {repository.private ? 'Private' : 'Public'}
                 <span class="font-mono text-neutral/45">· {repository.default_branch ?? 'default branch unknown'}</span>
               </p>
-            </article>
+            </a>
           {/each}
         </div>
       {/if}
@@ -238,7 +236,7 @@
           {/if}
         </div>
       {:else}
-        <div class="divide-y divide-base-300 overflow-hidden rounded-lg border border-base-300">
+        <div class="panel-flat divide-y divide-base-300 overflow-hidden rounded-lg border border-base-300">
           {#each data.recentReleaseNotes as releaseNote}
             {@const hasFile = releaseNote.status === 'draft' || releaseNote.status === 'approved'}
             <div class="flex items-start justify-between gap-3 p-3">
@@ -284,7 +282,7 @@
     </section>
   </div>
 
-  <section class="mt-4 rounded-xl border border-base-300 bg-base-100 p-5">
+  <section id="usage-history" class="mt-4 scroll-mt-24 rounded-xl border border-base-300 bg-base-100 p-5">
     <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <h2 class="font-semibold text-neutral">Usage history</h2>
@@ -302,7 +300,7 @@
       </div>
     </div>
 
-    <div class="rounded-lg border border-base-300 bg-base-200/40 p-4">
+    <div class="panel-flat rounded-lg border border-base-300 bg-base-200/40 p-4">
       <svg class="h-64 w-full overflow-visible" viewBox={`0 0 ${usageChartWidth} ${usageChartHeight}`} role="img">
         <title>Monthly usage history</title>
         <desc>Repository slot and release-note counts by month.</desc>

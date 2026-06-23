@@ -1,4 +1,6 @@
 <script lang="ts">
+  import ReceiptText from '@lucide/svelte/icons/receipt-text';
+
   let { data, form } = $props();
 
   let billingInterval = $state<'monthly' | 'yearly'>('monthly');
@@ -48,10 +50,10 @@
   );
   const planChangeDescription = $derived(
     planChangeKind === 'upgrade'
-      ? 'ShipLog will submit this subscription change to the billing provider. The price difference may be invoiced immediately.'
+      ? 'Blah Blah will submit this subscription change to the billing provider. The price difference may be invoiced immediately.'
       : planChangeKind === 'downgrade'
-        ? 'ShipLog will submit this subscription change without requesting an immediate invoice. Limits may update after the change is confirmed.'
-        : 'ShipLog will submit this billing interval change without requesting an immediate invoice.'
+        ? 'Blah Blah will submit this subscription change without requesting an immediate invoice. Limits may update after the change is confirmed.'
+        : 'Blah Blah will submit this billing interval change without requesting an immediate invoice.'
   );
 
   function openBillingDialog(action: 'cancel' | 'resume') {
@@ -90,7 +92,7 @@
 </script>
 
 <svelte:head>
-  <title>Billing | ShipLog</title>
+  <title>Billing | Blah Blah</title>
 </svelte:head>
 
 <section>
@@ -141,16 +143,16 @@
       <p class="text-sm font-medium text-neutral">Billing interval</p>
       <p class="mt-1 text-xs text-neutral/55">Choose yearly to get two months free.</p>
     </div>
-    <div class="join">
+    <div class="flex flex-wrap gap-3">
       <button
-        class="btn join-item btn-sm {billingInterval === 'monthly' ? 'btn-primary' : 'btn-outline'}"
+        class="btn btn-sm {billingInterval === 'monthly' ? 'btn-primary' : 'btn-outline'}"
         type="button"
         onclick={() => (billingInterval = 'monthly')}
       >
         Monthly
       </button>
       <button
-        class="btn join-item btn-sm {billingInterval === 'yearly' ? 'btn-primary' : 'btn-outline'}"
+        class="btn btn-sm {billingInterval === 'yearly' ? 'btn-primary' : 'btn-outline'}"
         type="button"
         onclick={() => (billingInterval = 'yearly')}
       >
@@ -165,7 +167,7 @@
   <div class="grid items-stretch gap-5 lg:grid-cols-3">
     <article class="relative flex min-h-[22rem] rounded-xl border bg-base-100 p-6 {currentPlan === 'free' ? 'border-2 border-primary' : 'border-base-300'} flex-col">
       {#if currentPlan === 'free'}
-        <span class="absolute -top-3 left-6 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-content">
+        <span class="neo-plan-label absolute right-4 top-4 inline-flex w-fit rounded-full px-3 py-1 text-xs uppercase">
           Current plan
         </span>
       {/if}
@@ -183,7 +185,7 @@
 
     <article class="relative flex min-h-[22rem] rounded-xl border bg-base-100 p-6 {starterIsCurrent ? 'border-2 border-primary' : 'border-base-300'} flex-col">
       {#if starterIsCurrent}
-        <span class="absolute -top-3 left-6 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-content">
+        <span class="neo-plan-label absolute right-4 top-4 inline-flex w-fit rounded-full px-3 py-1 text-xs uppercase">
           Current plan
         </span>
       {/if}
@@ -223,7 +225,7 @@
 
     <article class="relative flex min-h-[22rem] rounded-xl border bg-base-100 p-6 {proIsCurrent ? 'border-2 border-primary' : 'border-base-300'} flex-col">
       {#if proIsCurrent}
-        <span class="absolute -top-3 left-6 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-content">
+        <span class="neo-plan-label absolute right-4 top-4 inline-flex w-fit rounded-full px-3 py-1 text-xs uppercase">
           Current plan
         </span>
       {/if}
@@ -270,7 +272,7 @@
           <p class="mt-1 text-xs text-neutral/55">
             {subscriptionCancelled
               ? 'This subscription is cancelled. Paid access remains available until the end date.'
-              : 'Plan changes and cancellation are handled in ShipLog. Payment method updates open the secure payment page.'}
+              : 'Plan changes and cancellation are handled in Blah Blah. Payment method updates open the secure payment page.'}
           </p>
         </div>
         <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
@@ -339,53 +341,41 @@
       </div>
 
       {#if data.invoices.length > 0}
-        <div class="mt-4 overflow-hidden rounded-lg border border-base-300">
-          <div class="hidden grid-cols-[1.2fr_1fr_1fr_auto] gap-4 border-b border-base-300 bg-base-200/60 px-4 py-2 text-xs font-medium text-neutral/45 sm:grid">
-            <span>Date</span>
-            <span>Amount</span>
-            <span>Status</span>
-            <span class="text-right">Invoice</span>
-          </div>
-          <div class="divide-y divide-base-300">
-            {#each data.invoices as invoice}
-              <div class="grid gap-3 px-4 py-3 text-sm sm:grid-cols-[1.2fr_1fr_1fr_auto] sm:items-center sm:gap-4">
-                <div>
-                  <p class="font-medium text-neutral sm:hidden">Date</p>
-                  <p class="text-neutral/70">{formatInvoiceDate(invoice.createdAt)}</p>
-                </div>
-                <div>
-                  <p class="font-medium text-neutral sm:hidden">Amount</p>
-                  <p class="text-neutral">{formatInvoiceAmount(invoice.totalFormatted)}</p>
-                </div>
-                <div>
-                  <p class="font-medium text-neutral sm:hidden">Status</p>
-                  <span
-                    class="badge badge-sm {invoice.status === 'paid'
-                      ? 'badge-success'
-                      : invoice.status === 'refunded'
-                        ? 'badge-neutral'
-                        : 'badge-warning'}"
-                  >
-                    {invoice.statusFormatted ?? invoice.status ?? 'Unknown'}
-                  </span>
-                </div>
-                <div class="sm:text-right">
-                  {#if invoice.invoiceUrl}
-                    <a
-                      class="btn btn-ghost btn-xs border border-base-300 bg-base-200/60 text-neutral/70 hover:bg-base-200 hover:text-neutral"
-                      href={invoice.invoiceUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Open
-                    </a>
-                  {:else}
-                    <span class="text-xs text-neutral/40">Unavailable</span>
-                  {/if}
+        <div class="panel-flat mt-4 divide-y divide-base-300 overflow-hidden rounded-lg border border-base-300">
+          {#each data.invoices as invoice}
+            <div class="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex min-w-0 items-start gap-2">
+                <ReceiptText class="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <div class="min-w-0">
+                  <p class="font-medium text-neutral">{formatInvoiceDate(invoice.createdAt)}</p>
+                  <p class="mt-1 text-xs text-neutral/55">{formatInvoiceAmount(invoice.totalFormatted)}</p>
                 </div>
               </div>
-            {/each}
-          </div>
+              <div class="flex items-center gap-3 sm:justify-end">
+                <span
+                  class="badge badge-sm {invoice.status === 'paid'
+                    ? 'badge-success'
+                    : invoice.status === 'refunded'
+                      ? 'badge-neutral'
+                      : 'badge-warning'}"
+                >
+                  {invoice.statusFormatted ?? invoice.status ?? 'Unknown'}
+                </span>
+                {#if invoice.invoiceUrl}
+                  <a
+                    class="btn btn-ghost btn-xs"
+                    href={invoice.invoiceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Open
+                  </a>
+                {:else}
+                  <span class="text-xs text-neutral/40">Unavailable</span>
+                {/if}
+              </div>
+            </div>
+          {/each}
         </div>
       {:else}
         <div class="mt-4 rounded-lg border border-dashed border-base-300 bg-base-200/30 px-4 py-6 text-sm text-neutral/55">
@@ -470,8 +460,8 @@
       </h2>
       <p class="mt-2 text-sm leading-6 text-neutral/65">
         {pendingBillingAction === 'cancel'
-          ? 'ShipLog will stop renewing this subscription. Your paid access remains available until the end date.'
-          : 'ShipLog will resume renewals for this subscription.'}
+          ? 'Blah Blah will stop renewing this subscription. Your paid access remains available until the end date.'
+          : 'Blah Blah will resume renewals for this subscription.'}
       </p>
 
       <div class="mt-4 rounded-lg border border-base-300 bg-base-200/50 p-3">

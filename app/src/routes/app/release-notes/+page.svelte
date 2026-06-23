@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { goto } from '$app/navigation';
+  import NeoSelect from '$lib/components/NeoSelect.svelte';
   import ScrollText from '@lucide/svelte/icons/scroll-text';
   import Plus from '@lucide/svelte/icons/plus';
   import X from '@lucide/svelte/icons/x';
@@ -19,6 +21,7 @@
   let tags = $state<Array<{ name: string; sha: string }>>([]);
   let tagsLoading = $state(false);
   let tagsError = $state('');
+  let releaseNotePendingDelete = $state<{ id: string; title: string } | null>(null);
 
   const hasActiveRepositories = $derived(data.activeRepositories.length > 0);
   const hasReleaseNoteQuota = $derived(
@@ -26,6 +29,19 @@
   );
   const releaseNoteLimitLabel = $derived(data.releaseNoteLimit === null ? 'Unlimited' : data.releaseNoteLimit);
   const planName = $derived(data.billing.currentPlanDefinition.name);
+  const repositoryFilterOptions = $derived([
+    { value: '', label: 'All repositories' },
+    ...data.activeRepositories.map((repository) => ({
+      value: repository.id,
+      label: repository.full_name
+    }))
+  ]);
+  const statusFilterOptions = [
+    { value: '', label: 'All statuses' },
+    { value: 'draft', label: 'Draft' },
+    { value: 'approved', label: 'Approved' },
+    { value: 'failed', label: 'Failed' }
+  ];
   const startTagIndex = $derived(tags.findIndex((tag) => tag.name === selectedStartTag));
   const endTagIndex = $derived(tags.findIndex((tag) => tag.name === selectedEndTag));
   const canChooseTags = $derived(hasActiveRepositories && tags.length >= 1);
@@ -40,6 +56,21 @@
       ? 'Start tag must be older than end tag.'
       : ''
   );
+
+  function updateFilters(filters: { repositoryId?: string; status?: string }) {
+    const url = new URL(window.location.href);
+
+    for (const [key, value] of Object.entries(filters)) {
+      if (value) {
+        url.searchParams.set(key, value);
+      } else {
+        url.searchParams.delete(key);
+      }
+    }
+
+    url.searchParams.delete('queued');
+    goto(`${url.pathname}${url.search}`, { keepFocus: true, noScroll: true });
+  }
 
   async function loadTags() {
     tags = [];
@@ -77,10 +108,18 @@
       tagsLoading = false;
     }
   }
+
+  function openDeleteDialog(releaseNote: { id: string; title: string }) {
+    releaseNotePendingDelete = releaseNote;
+  }
+
+  function closeDeleteDialog() {
+    releaseNotePendingDelete = null;
+  }
 </script>
 
 <svelte:head>
-  <title>Release Notes | ShipLog</title>
+  <title>Release Notes | Blah Blah</title>
 </svelte:head>
 
 <section>
@@ -142,38 +181,35 @@
     </div>
   {/if}
 
-  <form class="mb-4 grid gap-3 rounded-xl border border-base-300 bg-base-100 p-4 sm:grid-cols-[1fr_12rem_auto]" method="GET">
-    <label class="form-control">
+  <div class="mb-4 grid gap-3 rounded-xl border border-base-300 bg-base-100 p-4 sm:grid-cols-[1fr_12rem_auto]">
+    <div class="form-control">
       <span class="label py-1">
         <span class="label-text">Repository</span>
       </span>
-      <select class="select select-bordered select-sm" name="repositoryId">
-        <option value="">All repositories</option>
-        {#each data.activeRepositories as repository}
-          <option value={repository.id} selected={data.filters.repositoryId === repository.id}>
-            {repository.full_name}
-          </option>
-        {/each}
-      </select>
-    </label>
+      <NeoSelect
+        value={data.filters.repositoryId}
+        options={repositoryFilterOptions}
+        size="sm"
+        onChange={(repositoryId) => updateFilters({ repositoryId })}
+      />
+    </div>
 
-    <label class="form-control">
+    <div class="form-control">
       <span class="label py-1">
         <span class="label-text">Status</span>
       </span>
-      <select class="select select-bordered select-sm" name="status">
-        <option value="">All statuses</option>
-        <option value="draft" selected={data.filters.status === 'draft'}>Draft</option>
-        <option value="approved" selected={data.filters.status === 'approved'}>Approved</option>
-        <option value="failed" selected={data.filters.status === 'failed'}>Failed</option>
-      </select>
-    </label>
+      <NeoSelect
+        value={data.filters.status}
+        options={statusFilterOptions}
+        size="sm"
+        onChange={(status) => updateFilters({ status })}
+      />
+    </div>
 
     <div class="flex items-end gap-2">
-      <button class="btn btn-primary btn-sm" type="submit">Apply</button>
       <a class="btn btn-ghost btn-sm" href="/app/release-notes">Reset</a>
     </div>
-  </form>
+  </div>
 
   {#if data.releaseNotes.length === 0}
     <div class="rounded-xl border border-dashed border-base-300 bg-base-100 p-12 text-center">
@@ -234,7 +270,7 @@
               </td>
               <td class="text-sm text-neutral/60">{new Date(releaseNote.created_at).toLocaleDateString()}</td>
               <td>
-                <div class="flex items-center justify-end gap-0.5">
+                <div class="flex items-center justify-end gap-2">
                   {#if releaseNote.status !== 'generating'}
                     <a
                       class="btn btn-square btn-ghost btn-sm text-neutral/55 hover:text-neutral"
@@ -258,25 +294,15 @@
                       </button>
                     </form>
                   {/if}
-                  <form
-                    method="POST"
-                    action="?/deleteReleaseNote"
-                    onsubmit={(event) => {
-                      if (!confirm(`Delete "${releaseNote.title}"? This cannot be undone.`)) {
-                        event.preventDefault();
-                      }
-                    }}
+                  <button
+                    class="btn btn-square btn-ghost btn-sm text-neutral/55 hover:bg-error/10 hover:text-error"
+                    type="button"
+                    aria-label="Delete release note"
+                    title="Delete"
+                    onclick={() => openDeleteDialog(releaseNote)}
                   >
-                    <input type="hidden" name="releaseNoteId" value={releaseNote.id} />
-                    <button
-                      class="btn btn-square btn-ghost btn-sm text-neutral/55 hover:bg-error/10 hover:text-error"
-                      type="submit"
-                      aria-label="Delete release note"
-                      title="Delete"
-                    >
-                      <Trash2 class="h-4 w-4" />
-                    </button>
-                  </form>
+                    <Trash2 class="h-4 w-4" />
+                  </button>
                 </div>
               </td>
             </tr>
@@ -286,6 +312,44 @@
     </div>
   {/if}
 </section>
+
+{#if releaseNotePendingDelete}
+  <div
+    class="fixed inset-0 z-50 grid place-items-center bg-black/55 p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="delete-release-note-title"
+  >
+    <div class="w-full max-w-lg rounded-xl border border-base-300 bg-base-100 p-6 shadow-glow">
+      <h2 id="delete-release-note-title" class="text-lg font-semibold text-neutral">Delete release note?</h2>
+      <p class="mt-2 text-sm leading-6 text-neutral/65">
+        This deletes the release note record and its stored draft content from Blah Blah.
+      </p>
+
+      <div class="panel-flat mt-4 rounded-lg border border-base-300 bg-base-200/50 p-3">
+        <p class="text-sm font-medium text-neutral">{releaseNotePendingDelete.title}</p>
+      </div>
+
+      <div class="alert alert-error mt-4 text-sm">This cannot be undone.</div>
+
+      <div class="mt-6 flex justify-end gap-2">
+        <button class="btn btn-ghost btn-sm" type="button" onclick={closeDeleteDialog}>Keep release note</button>
+
+        <form method="POST" action="?/deleteReleaseNote">
+          <input type="hidden" name="releaseNoteId" value={releaseNotePendingDelete.id} />
+          <button class="btn btn-error btn-sm" type="submit">Delete release note</button>
+        </form>
+      </div>
+    </div>
+
+    <button
+      class="absolute inset-0 -z-10 cursor-default"
+      type="button"
+      aria-label="Close delete release note dialog"
+      onclick={closeDeleteDialog}
+    ></button>
+  </div>
+{/if}
 
 <dialog class="modal" bind:this={dialog}>
   <div class="modal-box max-w-2xl">
@@ -304,13 +368,16 @@
     </p>
 
     <form class="mt-6 grid gap-4" method="POST" action="?/generateReleaseNotes">
-      <label class="form-control">
+      <input type="hidden" name="repositoryId" value={selectedRepositoryId} />
+      <input type="hidden" name="startTag" value={selectedStartTag} />
+      <input type="hidden" name="endTag" value={selectedEndTag} />
+
+      <div class="form-control">
         <span class="label">
           <span class="label-text">Repository</span>
         </span>
         <select
           class="select select-bordered"
-          name="repositoryId"
           bind:value={selectedRepositoryId}
           onchange={loadTags}
           required
@@ -320,7 +387,7 @@
             <option value={repository.id}>{repository.full_name}</option>
           {/each}
         </select>
-      </label>
+      </div>
 
       {#if tagsLoading}
         <div class="alert text-sm">Loading tags...</div>
@@ -331,13 +398,12 @@
       {/if}
 
       <div class="grid gap-4 sm:grid-cols-2">
-        <label class="form-control">
+        <div class="form-control">
           <span class="label">
             <span class="label-text">Start tag</span>
           </span>
           <select
             class="select select-bordered"
-            name="startTag"
             bind:value={selectedStartTag}
             disabled={!canChooseTags}
           >
@@ -347,15 +413,14 @@
               <option value={tag.name} disabled={!canUseAsStart}>{tag.name}</option>
             {/each}
           </select>
-        </label>
+        </div>
 
-        <label class="form-control">
+        <div class="form-control">
           <span class="label">
             <span class="label-text">End tag</span>
           </span>
           <select
             class="select select-bordered"
-            name="endTag"
             bind:value={selectedEndTag}
             disabled={!canChooseTags}
             required
@@ -366,7 +431,7 @@
               <option value={tag.name} disabled={!canUseAsEnd}>{tag.name}</option>
             {/each}
           </select>
-        </label>
+        </div>
       </div>
 
       {#if tagRangeError}

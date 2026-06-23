@@ -13,7 +13,7 @@ const config = {
   daisyui: {
     themes: [
       {
-        shiplog: {
+        blahblah: {
           'color-scheme': 'dark',
           primary: '#f59e0b',
           'primary-content': '#1a1206',

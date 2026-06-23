@@ -1,5 +1,5 @@
 {
-  "name": "shiplog",
+  "name": "blahblah",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -7,8 +7,8 @@
     "app"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace @shiplog/app",
-    "build": "npm run build --workspace @shiplog/app",
-    "check": "npm run check --workspace @shiplog/app"
+    "dev": "npm run dev --workspace @blahblah/app",
+    "build": "npm run build --workspace @blahblah/app",
+    "check": "npm run check --workspace @blahblah/app"
   }
 }

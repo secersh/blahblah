@@ -79,7 +79,7 @@
 
 <div class="overflow-hidden rounded-xl border border-base-300 bg-base-100">
   <div class="flex flex-wrap items-center justify-between gap-2 border-b border-base-300 bg-base-200/40 px-2 py-1.5">
-    <div role="tablist" class="flex gap-1">
+    <div role="tablist" class="flex gap-2">
       <button
         type="button"
         role="tab"
@@ -108,7 +108,7 @@
       </button>
     </div>
 
-    <div class="flex flex-wrap items-center gap-0.5 transition-opacity" class:invisible={mode === 'preview'}>
+    <div class="flex flex-wrap items-center gap-2 transition-opacity" class:invisible={mode === 'preview'}>
       {#each tools as tool}
         <button
           type="button"
@@ -139,7 +139,7 @@
     {#if mode === 'preview'}
       {#if rendered}
         <div
-          class="prose prose-invert max-w-none px-1 prose-headings:font-semibold prose-a:text-primary prose-code:text-secondary prose-code:before:content-none prose-code:after:content-none prose-pre:border prose-pre:border-base-300 prose-pre:bg-base-200/70"
+          class="markdown-preview prose max-w-none px-1 prose-headings:font-semibold prose-code:before:content-none prose-code:after:content-none prose-pre:border prose-pre:border-base-300 prose-pre:bg-base-200/70"
           style={`min-height:${minHeight}`}
         >
           {@html rendered}
@@ -152,3 +152,21 @@
     {/if}
   </div>
 </div>
+
+<style>
+  .markdown-preview,
+  .markdown-preview :global(*) {
+    color: #11100d;
+  }
+
+  .markdown-preview :global(a) {
+    color: #6d4aff;
+  }
+
+  .markdown-preview :global(code) {
+    border: 2px solid #11100d;
+    border-radius: 0.25rem;
+    background: #fff4a8;
+    padding: 0.05rem 0.3rem;
+  }
+</style>

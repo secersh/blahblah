@@ -27,7 +27,7 @@ type GitHubTag = {
 
 const GITHUB_API_HEADERS = {
   accept: 'application/vnd.github+json',
-  'user-agent': 'ShipLog',
+  'user-agent': 'Blah Blah',
   'x-github-api-version': '2022-11-28'
 };
 

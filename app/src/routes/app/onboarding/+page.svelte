@@ -1,3 +1,3 @@
 <svelte:head>
-  <title>Setup | ShipLog</title>
+  <title>Setup | Blah Blah</title>
 </svelte:head>

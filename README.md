@@ -1,16 +1,16 @@
-# ShipLog
+# Blah Blah
 
 Automated GitHub release notes.
 
-![ShipLog demo](docs/assets/shiplog-demo.gif)
+![Blah Blah demo](docs/assets/blahblah-demo.gif)
 
-Live app: https://shplog.dev
+Live app: https://blahblah.dev
 
 ## GitHub App Description
 
-ShipLog turns GitHub tags and commits into clean, editable release notes.
+Blah Blah turns GitHub tags and commits into clean, editable release notes.
 
-GitHub App: https://github.com/apps/shplog-dev
+GitHub App: https://github.com/apps/blah-blah-github-app
 
 ## Podcast vs Reality
 
@@ -20,7 +20,7 @@ Question:
 
 Can a solo developer build and market a nano SaaS using modern AI tools?
 
-The product is ShipLog, a GitHub App that generates release notes.
+The product is Blah Blah, a GitHub App that generates release notes.
 
 All metrics, predictions, successes and failures will be published publicly.
 
@@ -28,7 +28,7 @@ All metrics, predictions, successes and failures will be published publicly.
 
 Public launch starts on 2026-06-14.
 
-Tier 0 marketing runs from 2026-06-14 to 2026-06-20. During this phase, ShipLog is public and usable, but not actively promoted.
+Tier 0 marketing runs from 2026-06-14 to 2026-06-20. During this phase, Blah Blah is public and usable, but not actively promoted.
 
 ## Repository Structure
 

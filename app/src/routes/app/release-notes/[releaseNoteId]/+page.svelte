@@ -10,7 +10,7 @@
 </script>
 
 <svelte:head>
-  <title>{data.releaseNote.title} | ShipLog</title>
+  <title>{data.releaseNote.title} | Blah Blah</title>
 </svelte:head>
 
 <section>

@@ -15,8 +15,8 @@ export const load = async ({ locals, url }) => {
 
   const billing = await getUserBilling(locals.supabase, locals.user.id);
 
-  const repositoryIdFilter = url.searchParams.get('repositoryId') ?? '';
-  const statusFilter = url.searchParams.get('status') ?? '';
+  const repositoryIdFilter = url.searchParams.getAll('repositoryId').at(-1) ?? '';
+  const statusFilter = url.searchParams.getAll('status').at(-1) ?? '';
 
   const { data: activeRepositories } = await locals.supabase
     .from('repositories')

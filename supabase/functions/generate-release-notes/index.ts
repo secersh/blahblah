@@ -36,7 +36,7 @@ const GEMINI_MODEL = Deno.env.get('GEMINI_MODEL') ?? 'gemini-3.1-flash-lite';
 
 const GITHUB_API_HEADERS = {
   accept: 'application/vnd.github+json',
-  'user-agent': 'ShipLog',
+  'user-agent': 'Blah Blah',
   'x-github-api-version': '2022-11-28'
 };
 

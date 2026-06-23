@@ -7,7 +7,7 @@ Tier 1 starts: 2026-06-21
 
 ## Purpose
 
-Tier 0 tests what happens when ShipLog is public, usable, and discoverable, but not actively promoted.
+Tier 0 tests what happens when Blah Blah is public, usable, and discoverable, but not actively promoted.
 
 This phase creates a clean baseline before intentional marketing begins. Any visitors, installs, repository activations, or revenue during this period should come from organic discovery, existing public links, search indexing, GitHub discovery, or incidental traffic.
 
@@ -19,7 +19,7 @@ Do not run active distribution during Tier 0. The product can exist publicly, bu
 
 ## Allowed
 
-Keep the product live at `https://shplog.dev`.
+Keep the product live at `https://blahblah.dev`.
 
 Keep the GitHub repository public.
 
@@ -97,7 +97,7 @@ At the end of 2026-06-20, write a short summary in `logs/week-2.md`:
 - What broke
 - What was fixed
 - What organic traffic appeared
-- Whether anyone installed or used ShipLog without active marketing
+- Whether anyone installed or used Blah Blah without active marketing
 - Baseline metrics before Tier 1 starts
 
 Tier 1 marketing begins on 2026-06-21.

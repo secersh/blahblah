@@ -24,7 +24,7 @@
 </script>
 
 <svelte:head>
-  <title>Repositories | ShipLog</title>
+  <title>Repositories | Blah Blah</title>
 </svelte:head>
 
 <section>
@@ -103,12 +103,15 @@
             {@const activationBlocked = !repository.active && !repository.usedThisPeriod && isAtRepositoryLimit}
             <tr class="border-base-300">
               <td>
-                <a class="font-medium text-primary hover:underline" href={repository.html_url} target="_blank" rel="noreferrer">
+                <a class="inline-flex max-w-full items-center gap-2 font-medium text-primary" href={repository.html_url} target="_blank" rel="noreferrer">
+                  <FolderGit2 class="h-4 w-4 shrink-0" />
                   {repository.full_name}
                 </a>
               </td>
               <td>
-                <span class="badge badge-ghost badge-sm">{repository.private ? 'Private' : 'Public'}</span>
+                <span class="badge badge-ghost badge-sm repo-visibility-badge {repository.private ? 'repo-private-badge' : 'repo-public-badge'}">
+                  {repository.private ? 'Private' : 'Public'}
+                </span>
               </td>
               <td class="font-mono text-xs text-neutral/60">{repository.default_branch ?? 'unknown'}</td>
               <td class="text-right">
@@ -165,7 +168,7 @@
     <div class="w-full max-w-lg rounded-xl border border-base-300 bg-base-100 p-6 shadow-glow">
       <h2 id="deactivate-repository-title" class="text-lg font-semibold text-neutral">Deactivate repository?</h2>
       <p class="mt-2 text-sm leading-6 text-neutral/65">
-        ShipLog will stop processing webhook events and generating release notes for this repository.
+        Blah Blah will stop processing webhook events and generating release notes for this repository.
       </p>
 
       <div class="mt-4 rounded-lg border border-base-300 bg-base-200/50 p-3">
